@@ -54,7 +54,7 @@ chmod +x run.sh setup-env.sh setup-db.sh setup-zitadel.sh
 2. `setup-db.sh` - PostgreSQL başlatma, kullanıcı/DB oluşturma, Guacamole şeması yükleme
 3. `docker compose up -d` - Tüm servisleri ayağa kaldırma
 4. `setup-zitadel.sh` - Çift FQDN kullanımı için Zitadel instance domain eşleştirmesi
-5. `traefik/templates/dashboard.yml.tmpl` -> `traefik/dynamic/dashboard.yml` üretimi
+5. `traefik/templates/*.yml.tmpl` -> `traefik/dynamic/*.yml` üretimi
 
 ### 4. Durdurma / Temizlik
 ```bash
@@ -67,7 +67,9 @@ chmod +x run.sh setup-env.sh setup-db.sh setup-zitadel.sh
 
 - `docker-compose.yml` - Tüm servis tanımları, ağlar ve hacimler
 - `run.sh`, `setup-env.sh`, `setup-db.sh`, `setup-zitadel.sh` - Otomatik kurulum betikleri
-- `traefik/` - Traefik dinamik yapılandırma, şablonlar, sertifikalar ve yerel eklentiler
+- `traefik/templates/` - Traefik dinamik yapılandırma şablonları (`*.yml.tmpl`)
+- `traefik/dynamic/` - `run.sh` tarafından şablonlardan üretilen dinamik yapılandırmalar
+- `traefik/` - Traefik sertifikaları ve yerel eklentiler
 - `crowdsec/` - CrowdSec yapılandırması
 - `pgadmin/` - pgAdmin `servers.json`, `pgpass`, `config_local.py`
 - `postgres-init/` - İlk PostgreSQL çoklu veritabanı başlatma betiği

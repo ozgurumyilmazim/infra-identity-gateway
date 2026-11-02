@@ -127,33 +127,9 @@ else
 fi
 
 # -------------------------------------------------------------
-# TRAEFIK CROWDSEC MIDDLEWARE DINAMIK TANIMI
+# TRAEFIK CROWDSEC MIDDLEWARE TANIMI
+# (traefik/templates/crowdsec.yml.tmpl -> run.sh tarafından üretilir)
 # -------------------------------------------------------------
-BOUNCER_KEY=$(get_env_val "CROWDSEC_BOUNCER_API_KEY")
-SUBNET_VAL=$(get_env_val "TRUSTED_SUBNET")
-SUBNET_VAL=${SUBNET_VAL:-172.16.1.0/24}
-
-cat <<EOF > traefik/dynamic/crowdsec.yml
-http:
-  middlewares:
-    crowdsec:
-      plugin:
-        crowdsec:
-          enabled: true
-          crowdsecMode: live
-          crowdsecLapiScheme: http
-          crowdsecLapiHost: crowdsec:8080
-          crowdsecLapiKey: "${BOUNCER_KEY}"
-          clientTrustedIps:
-            - "127.0.0.1/32"
-            - "${SUBNET_VAL}"
-          forwardedHeadersTrustedIps:
-            - "127.0.0.1/32"
-            - "${SUBNET_VAL}"
-EOF
-chmod 644 traefik/dynamic/crowdsec.yml
-echo -e "${GREEN}[✓] Traefik CrowdSec middleware dosyası güncellendi (traefik/dynamic/crowdsec.yml).${NC}"
-
 
 manage_secret "POSTGRES_PASSWORD" "PostgreSQL (Zitadel DB) Şifresi" 24 \
     "Mevcut veritabanı volume'ü varsa PostgreSQL konteyneri şifre uyuşmazlığı nedeniyle başlatılamaz!"

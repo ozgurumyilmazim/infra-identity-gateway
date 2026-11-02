@@ -1,14 +1,14 @@
 http:
   routers:
     opnsense-int:
-      rule: "Host(`opnsense.sirket.intra`)"
+      rule: "Host(`${OPNSENSE_INT_FQDN}`)"
       entryPoints:
         - "websecure"
       service: "opnsense-service"
       tls: {}
 
     opnsense-ext:
-      rule: "Host(`opnsense.sirket.com.tr`)"
+      rule: "Host(`${OPNSENSE_EXT_FQDN}`)"
       entryPoints:
         - "webexternal"
       middlewares:
@@ -21,5 +21,5 @@ http:
       loadBalancer:
         serversTransport: "ucsInternalTransport"
         servers:
-          - url: "https://172.16.1.1:443"
+          - url: "https://${OPNSENSE_INTERNAL_IP}:${OPNSENSE_INTERNAL_PORT}"
         passHostHeader: true

@@ -26,12 +26,33 @@ get_env_val() {
     grep -E "^${1}=" .env | cut -d '=' -f2- | tr -d '\r' | sed 's/^"\(.*\)"$/\1/'
 }
 
-DOMAIN_INT=$(get_env_val "DOMAIN_INT")
-DOMAIN_EXT=$(get_env_val "DOMAIN_EXT")
-export DOMAIN_INT DOMAIN_EXT
+expand_env_refs() {
+    local value="$1"
+    value=${value//\$\{DOMAIN_INT\}/$DOMAIN_INT}
+    value=${value//\$\{DOMAIN_EXT\}/$DOMAIN_EXT}
+    printf '%s' "$value"
+}
+
+for key in DOMAIN_INT DOMAIN_EXT TRUSTED_SUBNET CROWDSEC_BOUNCER_API_KEY \
+           OPNSENSE_INT_FQDN OPNSENSE_EXT_FQDN OPNSENSE_INTERNAL_IP OPNSENSE_INTERNAL_PORT; do
+    value=$(get_env_val "$key")
+    value=$(expand_env_refs "$value")
+    export "$key=$value"
+done
 
 DYNAMIC_DIR="./traefik/dynamic"
-TEMPLAT_DIR="./traefik/templates"
+TEMPLATE_DIR="./traefik/templates"
+
+TEMPLATE_VARS=(
+    '${DOMAIN_EXT}'
+    '${DOMAIN_INT}'
+    '${TRUSTED_SUBNET}'
+    '${CROWDSEC_BOUNCER_API_KEY}'
+    '${OPNSENSE_INT_FQDN}'
+    '${OPNSENSE_EXT_FQDN}'
+    '${OPNSENSE_INTERNAL_IP}'
+    '${OPNSENSE_INTERNAL_PORT}'
+)
 
 render_template() {
     local template="$1"
@@ -57,10 +78,13 @@ render_template() {
 }
 
 echo -e "\n${YELLOW}[*] Traefik dinamik şablonları işleniyor...${NC}"
-if [ -f "$TEMPLAT_DIR/dashboard.yml.tmpl" ]; then
-    render_template "$TEMPLAT_DIR/dashboard.yml.tmpl" "$DYNAMIC_DIR/dashboard.yml" '${DOMAIN_EXT}' '${DOMAIN_INT}'
-    echo -e "${GREEN}[✓] dashboard.yml üretildi.${NC}"
-fi
+mkdir -p "$DYNAMIC_DIR"
+for template in "$TEMPLATE_DIR"/*.yml.tmpl; do
+    [ -e "$template" ] || continue
+    filename=$(basename "$template" .tmpl)
+    render_template "$template" "$DYNAMIC_DIR/$filename" "${TEMPLATE_VARS[@]}"
+    echo -e "${GREEN}[✓] ${filename} üretildi.${NC}"
+done
 
 # 2. Veritabanını ve Şemaları Ayağa Kaldır
 if [ ! -f ./setup-db.sh ]; then
