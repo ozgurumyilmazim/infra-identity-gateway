@@ -77,6 +77,7 @@ chmod +x run.sh setup-env.sh setup-db.sh setup-zitadel.sh
 ## Notlar
 
 - Traefik CrowdSec bouncer eklentisi `setup-env.sh` tarafından GitHub'dan indirilir.
+- CrowdSec koleksiyonları: `crowdsecurity/linux`, `crowdsecurity/traefik`, `crowdsecurity/http-dos`, `crowdsecurity/appsec-virtual-patching`, `crowdsecurity/appsec-generic-rules`; Traefik erişim logu ve AppSec (7422) `crowdsec/acquis.d/` üzerinden okunur.
 - Vaultwarden admin token `setup-env.sh` ile Argon2 PHC formatında üretilir ve `.env`'ye yazılır.
 - pgAdmin kimlik doğrulaması `SERVER_MODE=true` ve `MASTER_PASSWORD_REQUIRED=true` ile yapılandırılır.
 - Traefik Dashboard erişimi `traefik/dynamic/usersfile` (htpasswd) ile korunur.

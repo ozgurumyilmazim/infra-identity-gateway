@@ -248,7 +248,11 @@ services:
       db:
         condition: service_healthy
     environment:
-      COLLECTIONS: "crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors"
+      # linux: geoip/dateparse + sshd + whitelist-good-actors
+      # traefik: traefik parser -> base-http-scenarios -> http-cve
+      # http-dos: DoS/dDoS davranışları
+      # appsec-*: WAF / virtual patching + generic kurallar
+      COLLECTIONS: "crowdsecurity/linux crowdsecurity/traefik crowdsecurity/http-dos crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules"
       BOUNCER_KEY_traefik_bouncer: ${CROWDSEC_BOUNCER_API_KEY}
       CROWDSEC_DB_USER: ${CROWDSEC_DB_USER:-crowdsec}
       CROWDSEC_DB_PASSWORD: ${CROWDSEC_DB_PASSWORD}
@@ -256,6 +260,7 @@ services:
     volumes:
       - crowdsec_config:/etc/crowdsec
       - crowdsec_data:/var/lib/crowdsec/data
+      - ./crowdsec/acquis.d:/etc/crowdsec/acquis.d:ro
       - ./crowdsec/config.yaml.local:/etc/crowdsec/config.yaml.local:ro
       - traefik_logs:/var/log/traefik:ro
       - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
