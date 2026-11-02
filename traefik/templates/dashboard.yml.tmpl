@@ -29,8 +29,6 @@ http:
         - "websecure"
       tls: {}
       service: "api@internal"
-      middlewares:
-        - "dashboard-auth"
 
     # --- B) HARİCİ BLOKLAMA KURALI (Yüksek Öncelik: Priority 100) ---
     # /api/rawdata, kök /api veya doğrudan durum listelemelerini dış ağda engeller
