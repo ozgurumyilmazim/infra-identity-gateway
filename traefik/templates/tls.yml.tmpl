@@ -22,6 +22,9 @@ tls:
 
 http:
   serversTransports:
+    unSecureTransport:
+      insecureSkipVerify: true
+      
     ucsInternalTransport:
       rootCAs:
         - /certs/ucs/ucs-root-ca.crt
