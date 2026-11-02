@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -e
 
 ENV_FILE=".env"
@@ -44,14 +44,25 @@ echo -e "\n${BLUE}==============================================${NC}"
 echo -e "${BLUE}        MEVCUT .env YAPILANDIRMA ÖZETİ        ${NC}"
 echo -e "${BLUE}==============================================${NC}"
 
-printf "%-25s : %s | %s\n" "ZITADEL FQDN" "$(get_env_val "ZITADEL_INT_FQDN")" "$(get_env_val "ZITADEL_EXT_FQDN")"
-printf "%-25s : %s | %s\n" "PORTAINER FQDN" "$(get_env_val "PORTAINER_INT_FQDN")" "$(get_env_val "PORTAINER_EXT_FQDN")"
-printf "%-25s : %s | %s\n" "GUACAMOLE FQDN" "$(get_env_val "GUACAMOLE_INT_FQDN")" "$(get_env_val "GUACAMOLE_EXT_FQDN")"
-printf "%-25s : %s | %s\n" "VAULTWARDEN FQDN" "$(get_env_val "VAULTWARDEN_INT_FQDN")" "$(get_env_val "VAULTWARDEN_EXT_FQDN")"
-printf "%-25s : %s | %s\n" "WHOAMI FQDN" "$(get_env_val "WHOAMI_INT_FQDN")" "$(get_env_val "WHOAMI_EXT_FQDN")"
+# DOMAIN_INT ve DOMAIN_EXT'i oku; FQDN sablonlarindaki ${DOMAIN_*} referanslarini coz
+_DOMAIN_INT=$(get_env_val "DOMAIN_INT")
+_DOMAIN_EXT=$(get_env_val "DOMAIN_EXT")
+
+expand_fqdn() {
+    local val="$1"
+    val="${val//\$\{DOMAIN_INT\}/$_DOMAIN_INT}"
+    val="${val//\$\{DOMAIN_EXT\}/$_DOMAIN_EXT}"
+    printf '%s' "$val"
+}
+
+printf "%-25s : %s | %s\n" "ZITADEL FQDN" "$(expand_fqdn "$(get_env_val "ZITADEL_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "ZITADEL_EXT_FQDN")")"
+printf "%-25s : %s | %s\n" "PORTAINER FQDN" "$(expand_fqdn "$(get_env_val "PORTAINER_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "PORTAINER_EXT_FQDN")")"
+printf "%-25s : %s | %s\n" "GUACAMOLE FQDN" "$(expand_fqdn "$(get_env_val "GUACAMOLE_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "GUACAMOLE_EXT_FQDN")")"
+printf "%-25s : %s | %s\n" "VAULTWARDEN FQDN" "$(expand_fqdn "$(get_env_val "VAULTWARDEN_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "VAULTWARDEN_EXT_FQDN")")"
+printf "%-25s : %s | %s\n" "WHOAMI FQDN" "$(expand_fqdn "$(get_env_val "WHOAMI_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "WHOAMI_EXT_FQDN")")"
 printf "%-25s : %s:%s\n" "OPNSENSE_TARGET" "$(get_env_val "OPNSENSE_INTERNAL_IP")" "$(get_env_val "OPNSENSE_INTERNAL_PORT")"
-printf "%-25s : %s (%s)\n" "UCS_AD_TARGET" "$(get_env_val "UCS_HOST")" "$(get_env_val "UCS_IP")"
-printf "%-25s : %s | %s\n" "PGADMIN FQDN" "$(get_env_val "PGADMIN_INT_FQDN")" "$(get_env_val "PGADMIN_EXT_FQDN")"
+printf "%-25s : %s (%s)\n" "UCS_AD_TARGET" "$(expand_fqdn "$(get_env_val "UCS_HOST")")" "$(get_env_val "UCS_IP")"
+printf "%-25s : %s | %s\n" "PGADMIN FQDN" "$(expand_fqdn "$(get_env_val "PGADMIN_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "PGADMIN_EXT_FQDN")")"
 printf "%-25s : %s\n" "TRUSTED SUBNET (CIDR)" "$(get_env_val "TRUSTED_SUBNET") (127.0.0.1/32 ile)"
 
 echo -e "\n${BLUE}----------------------------------------------${NC}"
