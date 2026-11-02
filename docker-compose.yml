@@ -1,4 +1,4 @@
-﻿services:
+services:
   # ==========================================
   # 1. INGRESS & REVERSE PROXY: TRAEFIK v3
   # ==========================================
@@ -154,6 +154,11 @@
       - "traefik.http.routers.zitadel-ext.tls=true"
       - "traefik.http.routers.zitadel-ext.middlewares=crowdsec@file"
       - "traefik.http.routers.zitadel-ext.service=zitadel-svc"
+      # Router 3: Split-DNS (ic agdan .com.tr -> 443, CrowdSec yok)
+      - "traefik.http.routers.zitadel-ext-split.rule=Host(`${ZITADEL_EXT_FQDN}`)"
+      - "traefik.http.routers.zitadel-ext-split.entrypoints=websecure"
+      - "traefik.http.routers.zitadel-ext-split.tls=true"
+      - "traefik.http.routers.zitadel-ext-split.service=zitadel-svc"
       # Ortak gRPC / h2c Port
       - "traefik.http.services.zitadel-svc.loadbalancer.server.port=8080"
       - "traefik.http.services.zitadel-svc.loadbalancer.server.scheme=h2c"
@@ -223,8 +228,7 @@
       - "traefik.http.routers.portainer-ext.rule=Host(`${PORTAINER_EXT_FQDN}`)"
       - "traefik.http.routers.portainer-ext.entrypoints=webexternal"
       - "traefik.http.routers.portainer-ext.tls=true"
-      - "traefik.http.routers.portainer-ext.middlewares=zitadel-signin@file,zitadel-forwardauth@file"
-      - "traefik.http.routers.portainer-ext.middlewares=crowdsec@file"
+      - "traefik.http.routers.portainer-ext.middlewares=crowdsec@file,zitadel-signin@file,zitadel-forwardauth@file"
       - "traefik.http.routers.portainer-ext.service=portainer-svc"
       # Ortak WebGUI Servisi
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
