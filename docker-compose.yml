@@ -450,17 +450,17 @@ services:
       - EXPERIMENTAL_CLIENT_FEATURE_FLAGS=${EXPERIMENTAL_CLIENT_FEATURE_FLAGS:-}
       - DATABASE_URL=postgresql://${VAULTWARDEN_DB_USER}:${VAULTWARDEN_DB_PASSWORD}@db:5432/${VAULTWARDEN_DB_NAME}
       - TZ=${TZ}
-
     volumes:
       - vaultwarden_data:/data
       - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
     labels:
       - "traefik.enable=true"
+      # Icagdan da dis agdan da ayni sekilde baglanilsin. 
       # Router 1: Dahili (.intra -> 443)
-      - "traefik.http.routers.vaultwarden-int.rule=Host(`${VAULTWARDEN_INT_FQDN}`)"
-      - "traefik.http.routers.vaultwarden-int.entrypoints=websecure"
-      - "traefik.http.routers.vaultwarden-int.tls=true"
-      - "traefik.http.routers.vaultwarden-int.service=vaultwarden-svc"
+      #- "traefik.http.routers.vaultwarden-int.rule=Host(`${VAULTWARDEN_INT_FQDN}`)"
+      #- "traefik.http.routers.vaultwarden-int.entrypoints=websecure"
+      #- "traefik.http.routers.vaultwarden-int.tls=true"
+      #- "traefik.http.routers.vaultwarden-int.service=vaultwarden-svc"
       # Router 2: Harici (.com.tr -> 444 + CrowdSec Koruması)
       - "traefik.http.routers.vaultwarden-ext.rule=Host(`${VAULTWARDEN_EXT_FQDN}`)"
       - "traefik.http.routers.vaultwarden-ext.entrypoints=webexternal"
