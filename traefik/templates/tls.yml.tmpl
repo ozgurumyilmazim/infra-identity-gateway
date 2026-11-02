@@ -5,11 +5,15 @@ tls:
       keyFile: /certs/ucs/ucs-int.key
       stores:
         - default
+    #- certFile: /certs/ucs/traefik.icat.intra.crt
+    #  keyFile: /certs/ucs/traefik.icat.intra.key
+    #  stores:
+    #    - default
     # Mevcut genel sertifika (harici/diğer kullanım için yedek)
-    - certFile: /certs/ucs-cert.crt
-      keyFile: /certs/ucs-cert.key
-      stores:
-        - default
+    #- certFile: /certs/ucs-cert.crt
+    #  keyFile: /certs/ucs-cert.key
+    #  stores:
+    #    - default
 
   options:
     default::
