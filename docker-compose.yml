@@ -440,13 +440,14 @@ services:
       db:
         condition: service_healthy
     environment:
-      - DOMAIN=https://${VAULTWARDEN_INT_FQDN}
+      - DOMAIN=https://${VAULTWARDEN_EXT_FQDN}
       - ADMIN_TOKEN=${VAULTWARDEN_ADMIN_TOKEN}
       - SIGNUPS_ALLOWED=${VAULTWARDEN_SIGNUPS_ALLOWED:-false}
       - INVITATIONS_ALLOWED=true
       - INVITATION_ORG_NAME=${INVITATION_ORG_NAME}
-      - EMERGENCY_ACCESS_ALLOWED=${EMERGENCY_ACCESS_ALLOWED}
+      - EMERGENCY_ACCESS_ALLOWED=${EMERGENCY_ACCESS_ALLOWED:-true}
       - WEBSOCKET_ENABLED=true
+      - EXPERIMENTAL_CLIENT_FEATURE_FLAGS=${EXPERIMENTAL_CLIENT_FEATURE_FLAGS:-}
       - DATABASE_URL=postgresql://${VAULTWARDEN_DB_USER}:${VAULTWARDEN_DB_PASSWORD}@db:5432/${VAULTWARDEN_DB_NAME}
       - TZ=${TZ}
 
@@ -466,6 +467,11 @@ services:
       - "traefik.http.routers.vaultwarden-ext.tls=true"
       - "traefik.http.routers.vaultwarden-ext.middlewares=crowdsec@file"
       - "traefik.http.routers.vaultwarden-ext.service=vaultwarden-svc"
+      # Router 3: Split-DNS (ic agdan .com.tr -> 443, CrowdSec yok)
+      - "traefik.http.routers.vaultwarden-ext-split.rule=Host(`${VAULTWARDEN_EXT_FQDN}`)"
+      - "traefik.http.routers.vaultwarden-ext-split.entrypoints=websecure"
+      - "traefik.http.routers.vaultwarden-ext-split.tls=true"
+      - "traefik.http.routers.vaultwarden-ext-split.service=vaultwarden-svc"
       - "traefik.http.services.vaultwarden-svc.loadbalancer.server.port=80"
     networks:
       - edge_network

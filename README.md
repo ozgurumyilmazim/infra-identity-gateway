@@ -86,6 +86,54 @@ chmod +x run.sh setup-env.sh setup-db.sh setup-zitadel.sh
 - İlk çalıştırmada `.env` yoksa `env.ornek` şablonundan otomatik oluşturulur; boş bırakılan gizli değerler `setup-env.sh` tarafından rastgele üretilir.
 - `CF_DNS_API_TOKEN`, `TAILSCALE_AUTH_KEY`, `CLOUDFLARE_TUNNEL_TOKEN` ve `OAUTH2_PROXY_*` değerlerini kendi ortamınıza göre doldurmanız gerekir.
 
+## Vaultwarden, UCS ve İstemci Özellikleri
+
+### UCS LDAP entegrasyonu
+
+Upstream Vaultwarden doğrudan LDAP ile oturum açmayı desteklemez. LDAP yalnızca
+kullanıcı davet/senkronu için kullanılabilir. UCS hesaplarıyla merkezi giriş
+gerekiyorsa iki yol vardır:
+
+- **Zitadel OIDC SSO:** Zitadel, UCS Samba 4 AD'ye federasyon ile bağlanır ve
+  Vaultwarden `SSO_ENABLED=true` ile Zitadel'e yönlendirilir.
+- **vaultwarden_ldap:** Kullanıcılar LDAP'ten otomatik davet edilir; Vaultwarden
+  ana parolası ayrı kalır.
+
+SSO, Vaultwarden 1.35.0 ile stabil sürüme girdi ancak hâlâ olgunlaşma aşamasında.
+Ayrıca sıfır-bilgi mimarisi nedeniyle master parola yine gerekir; SSO yalnızca
+kimlik doğrulama/session katmanını devralır. Bu nedenle mevcut kurulumda SSO
+etkinleştirilmemiştir. Merkezi onboarding/offboarding gerekirse önce
+`vaultwarden_ldap` davet senkronu değerlendirilmelidir.
+
+### Windows 11
+
+- Bitwarden masaüstü uygulamasını Microsoft Store yerine
+  [bitwarden.com/download](https://bitwarden.com/download/) üzerinden kurun.
+- Windows Ayarları'nda Windows Hello (PIN/yüz/parmak izi) etkin olsun; ardından
+  uygulamada `File → Settings → Security → Unlock with Windows Hello` seçin.
+- Uygulama yeniden başlatıldığında biyometrik kilit için
+  `Require master password or PIN on app restart` seçeneğini kapatın.
+- Tarayıcı eklentisini masaüstü uygulamasından açmak için her iki tarafta
+  browser integration seçeneğini etkinleştirin.
+
+### Android
+
+- Bitwarden Android uygulamasında self-hosted sunucu URL'si olarak kanonik
+  alan adını girin.
+- Biyometrik kilit ve Android Autofill, uygulama ayarlarından etkinleştirilir.
+- Anlık senkron için WebSocket zaten açıktır. Mobil push bildirimleri istenirse
+  `PUSH_ENABLED=true` ile birlikte `PUSH_INSTALLATION_ID` ve
+  `PUSH_INSTALLATION_KEY` (bitwarden.com/host) eklenmelidir.
+
+### WebAuthn/FIDO2 2FA ve acil erişim
+
+- WebAuthn/FIDO2 2FA ek yapılandırma gerektirmez; HTTPS ve doğru `DOMAIN`
+  yeterlidir.
+- WebAuthn kimlik bilgileri alan adına bağlıdır. Bu nedenle Vaultwarden için tek
+  kanonik alan adı kullanılır: `VAULTWARDEN_EXT_FQDN`. İç ağdan da bu FQDN'in
+  Traefik'e çözülmesi için split-DNS kaydı gerekir.
+- Acil erişim `EMERGENCY_ACCESS_ALLOWED=true` ile açıktır.
+
 ## Lisans
 
 [LICENSE](LICENSE) dosyasına bakınız.
