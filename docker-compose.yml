@@ -133,6 +133,8 @@ services:
       # ZITADEL_FIRSTINSTANCE_USER_USERNAME: ${ZITADEL_ADMIN_USER}
       # ZITADEL_FIRSTINSTANCE_USER_PASSWORD: ${ZITADEL_ADMIN_PASSWORD}
       # YENİ (Zitadel v4 Standartı):
+      # Kullanıcı adı e-posta olarak verilirse login adı birebir bu e-posta olur;
+      # aksi halde Zitadel <kullanıcı>@<org>.<domain> şeklinde uzatır.
       ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: ${ZITADEL_ADMIN_USER}
       ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: ${ZITADEL_ADMIN_PASSWORD}
       # İlk girişte zorunlu şifre değişimini atlamak isterseniz (isteğe bağlı):
