@@ -21,10 +21,46 @@ echo -e "\n${YELLOW}[ADIM 1/4] Ortam değişkenleri ve yapılandırma dosyaları
 chmod +x ./setup-env.sh
 ./setup-env.sh
 
-# .env değişkenlerini yükle ve dashboard.yml dosyasını üret
-set -a
-source .env
-set +a
+# .env değişkenlerini (kabuk olarak çalıştırmadan) oku ve dinamik şablonları üret
+get_env_val() {
+    grep -E "^${1}=" .env | cut -d '=' -f2- | tr -d '\r' | sed 's/^"\(.*\)"$/\1/'
+}
+
+DOMAIN_INT=$(get_env_val "DOMAIN_INT")
+DOMAIN_EXT=$(get_env_val "DOMAIN_EXT")
+export DOMAIN_INT DOMAIN_EXT
+
+DYNAMIC_DIR="./traefik/dynamic"
+TEMPLAT_DIR="./traefik/templates"
+
+render_template() {
+    local template="$1"
+    local output="$2"
+    shift 2
+
+    if command -v envsubst >/dev/null 2>&1; then
+        envsubst "$*" < "$template" > "$output"
+        return
+    fi
+
+    local content
+    content=$(<"$template")
+    local var value
+    for var in "$@"; do
+        var=${var#\$}
+        var=${var#\{}
+        var=${var%\}}
+        value=${!var:-}
+        content=${content//\$\{$var\}/$value}
+    done
+    printf '%s\n' "$content" > "$output"
+}
+
+echo -e "\n${YELLOW}[*] Traefik dinamik şablonları işleniyor...${NC}"
+if [ -f "$TEMPLAT_DIR/dashboard.yml.tmpl" ]; then
+    render_template "$TEMPLAT_DIR/dashboard.yml.tmpl" "$DYNAMIC_DIR/dashboard.yml" '${DOMAIN_EXT}' '${DOMAIN_INT}'
+    echo -e "${GREEN}[✓] dashboard.yml üretildi.${NC}"
+fi
 
 # 2. Veritabanını ve Şemaları Ayağa Kaldır
 if [ ! -f ./setup-db.sh ]; then
@@ -43,13 +79,6 @@ docker compose up -d
 echo -e "\n${YELLOW}[ADIM 4/4] Zitadel alan adı entegrasyonu tamamlanıyor...${NC}"
 chmod +x ./setup-zitadel.sh
 ./setup-zitadel.sh
-
-DYNAMIC_DIR="./traefik/dynamic"
-TEMPLAT_DIR="./traefik/templates"
-
-if [ -f "$TEMPLAT_DIR/dashboard.yml.tmpl" ]; then
-    envsubst '${DOMAIN_EXT} ${DOMAIN_INT}' < "$TEMPLAT_DIR/dashboard.yml.tmpl" > "$DYNAMIC_DIR/dashboard.yml"
-fi
 
 
 echo -e "\n${GREEN}[✓] Tüm servisler ve alan adları başarıyla devreye alındı.${NC}\n"

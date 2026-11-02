@@ -11,9 +11,13 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 if [ ! -f "$ENV_FILE" ]; then
-    echo -e "${RED}[X] Hata: '${ENV_FILE}' dosyası bulunamadı!${NC}"
-    echo -e "${YELLOW}Lütfen önce 'cp env.ornek .env' komutu ile dosyanızı oluşturup bu betiği çalıştırın.${NC}"
-    exit 1
+    if [ -f "env.ornek" ]; then
+        echo -e "${YELLOW}[!] '${ENV_FILE}' bulunamadı, 'env.ornek' şablonundan oluşturuluyor...${NC}"
+        cp env.ornek "$ENV_FILE"
+    else
+        echo -e "${RED}[X] Hata: '${ENV_FILE}' ve 'env.ornek' dosyaları bulunamadı!${NC}"
+        exit 1
+    fi
 fi
 
 get_env_val() {
@@ -319,17 +323,18 @@ chmod 644 pgadmin/config_local.py
 chown 5050:5050 pgadmin/config_local.py 2>/dev/null || true
 
 # CrowdSec config.yaml.local oluşturma
-cat <<'EOF' > crowdsec/config.yaml.local
+cat <<EOF > crowdsec/config.yaml.local
 db_config:
   log_level: info
   type: postgresql
-  user: ${CROWDSEC_DB_USER}
-  password: ${CROWDSEC_DB_PASSWORD}
-  db_name: ${CROWDSEC_DB_NAME}
+  user: ${CROWDSEC_USER}
+  password: ${CROWDSEC_PASS}
+  db_name: ${CROWDSEC_DB}
   host: db
   port: 5432
   sslmode: disable
 EOF
+chmod 644 crowdsec/config.yaml.local
 
 
 # -------------------------------------------------------------
