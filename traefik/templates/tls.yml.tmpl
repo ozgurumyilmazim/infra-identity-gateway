@@ -1,12 +1,18 @@
 tls:
   certificates:
+    # İç ağ (.intra) erişimleri için UCS Root CA tarafından imzalanmış sertifika
+    - certFile: /certs/ucs/ucs-int.crt
+      keyFile: /certs/ucs/ucs-int.key
+      stores:
+        - default
+    # Mevcut genel sertifika (harici/diğer kullanım için yedek)
     - certFile: /certs/ucs-cert.crt
       keyFile: /certs/ucs-cert.key
       stores:
         - default
 
   options:
-    default:
+    default::
       minVersion: VersionTLS12
       sniStrict: false
 
@@ -14,5 +20,5 @@ http:
   serversTransports:
     ucsInternalTransport:
       rootCAs:
-        - /certs/ucs-root-ca.crt
+        - /certs/ucs/ucs-root-ca.crt
       insecureSkipVerify: false
