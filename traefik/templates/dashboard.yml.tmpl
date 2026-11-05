@@ -35,21 +35,19 @@ http:
     traefik-api-ext-block:
       rule: "Host(`traefik.${DOMAIN_EXT}`) && (PathPrefix(`/api/rawdata`) || Path(`/api`))"
       entryPoints:
-        - "webexternal"
+        - "webexternalunsecure"
       priority: 100
       middlewares:
         - "internal-only-ip" # Dışarıdan gelen IP'ler eşleşmediği için 403 Forbidden alır
       service: "api@internal"
-      tls: {}
 
     # --- C) HARİCİ ARAYÜZ ERİŞİMİ (.com.tr -> Port 444: Sadece Dashboard UI) ---
     traefik-dashboard-ext:
       rule: "Host(`traefik.${DOMAIN_EXT}`)"
       entryPoints:
-        - "webexternal"
+        - "webexternalunsecure"
       priority: 10
       service: "api@internal"
-      tls: {}
       middlewares:
         - "crowdsec@file"
         - "dashboard-auth"

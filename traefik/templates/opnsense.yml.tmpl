@@ -10,11 +10,10 @@ http:
     opnsense-ext:
       rule: "Host(`${OPNSENSE_EXT_FQDN}`)"
       entryPoints:
-        - "webexternal"
+        - "webexternalunsecure"
       middlewares:
         - "crowdsec@file"
       service: "opnsense-service"
-      tls: {}
 
   services:
     opnsense-service:

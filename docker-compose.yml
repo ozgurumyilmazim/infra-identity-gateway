@@ -22,9 +22,11 @@ services:
       - "--entrypoints.websecure.address=:443"
       #- "--entrypoints.websecure.http.aliasheadersstrategy=preferXForwarded"
       - "--entrypoints.websecure.forwardedheaders.trustedips=127.0.0.1/32,${TRUSTED_SUBNET}"
-      - "--entrypoints.webexternal.address=:444"
-      #- "--entrypoints.webexternal.http.aliasheadersstrategy=preferXForwarded"
-      - "--entrypoints.webexternal.forwardedheaders.trustedips=127.0.0.1/32,${TRUSTED_SUBNET}"
+      - "--entrypoints.webexternalsecure.address=:444"
+      #- "--entrypoints.webexternalsecure.http.aliasheadersstrategy=preferXForwarded"
+      - "--entrypoints.webexternalsecure.forwardedheaders.trustedips=127.0.0.1/32,${TRUSTED_SUBNET}"
+      - "--entrypoints.webexternalunsecure.address=:88"
+      - "--entrypoints.webexternalunsecure.forwardedheaders.trustedips=127.0.0.1/32,${TRUSTED_SUBNET}"
       - "--accesslog=true"
       - "--accesslog.filepath=/var/log/traefik/access.log"
       - "--accesslog.bufferingsize=100"
@@ -33,8 +35,8 @@ services:
       # Traefik Dashboard Router Tanımı:
       - "traefik.http.routers.traefik-dash.rule=Host(`traefik.${DOMAIN_EXT}`)"
       - "traefik.http.routers.traefik-dash.service=api@internal"
-      - "traefik.http.routers.traefik-dash.entrypoints=webexternal"
-      - "traefik.http.routers.traefik-dash.tls=true"
+      - "traefik.http.routers.traefik-dash.entrypoints=webexternalunsecure"
+      - "traefik.http.routers.traefik-dash.tls=false"
       # Let's Encrypt DNS Challenge (Cloudflare)
       - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.storage=/certs/acme.json"
@@ -45,7 +47,7 @@ services:
     #  - "traefik.enable=true"
     #  # Dashboard Router (Hem /api hem /dashboard yollarını ve iki portu da kapsar):
     #  - "traefik.http.routers.traefik-ext-dash.rule=Host(`traefik.${DOMAIN_EXT}`) && (PathPrefix(`/dashboard`) || PathPrefix(`/api`))"
-    #  - "traefik.http.routers.traefik-ext-dash.entrypoints=webexternal"
+    #  - "traefik.http.routers.traefik-ext-dash.entrypoints=webexternalsecure"
     #  - "traefik.http.routers.traefik-ext-dash.service=api@internal"
     #  - "traefik.http.routers.traefik-ext-dash.tls=true"
     #  # Dashboard Router (Hem /api hem /dashboard yollarını ve iki portu da kapsar):
@@ -58,6 +60,7 @@ services:
       - CROWDSEC_BOUNCER_API_KEY=${CROWDSEC_BOUNCER_API_KEY}
     ports:
       # - "80:80"
+      - "88:88"
       - "443:443"
       - "444:444"
     volumes:
@@ -152,8 +155,8 @@ services:
       - "traefik.http.routers.zitadel-int.service=zitadel-svc"
       # Router 2: Harici (.com.tr -> 444 + CrowdSec)
       - "traefik.http.routers.zitadel-ext.rule=Host(`${ZITADEL_EXT_FQDN}`)"
-      - "traefik.http.routers.zitadel-ext.entrypoints=webexternal"
-      - "traefik.http.routers.zitadel-ext.tls=true"
+      - "traefik.http.routers.zitadel-ext.entrypoints=webexternalunsecure"
+      - "traefik.http.routers.zitadel-ext.tls=false"
       - "traefik.http.routers.zitadel-ext.middlewares=crowdsec@file"
       - "traefik.http.routers.zitadel-ext.service=zitadel-svc"
       # Router 3: Split-DNS (ic agdan .com.tr -> 443, CrowdSec yok)
@@ -204,7 +207,7 @@ services:
       - "traefik.http.middlewares.zitadel-auth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Preferred-Username"
       # Proxy Callback Yönlendirmesi
       - "traefik.http.routers.oauth2-proxy.rule=Host(`auth-proxy.${DOMAIN_EXT}`)"
-      - "traefik.http.routers.oauth2-proxy.entrypoints=websecure,webexternal"
+      - "traefik.http.routers.oauth2-proxy.entrypoints=websecure,webexternalunsecure"
       - "traefik.http.routers.oauth2-proxy.tls=true"
       - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
 
@@ -228,8 +231,8 @@ services:
       - "traefik.http.routers.portainer-int.service=portainer-svc"
       # Router 2: Harici (.com.tr -> 444 + CrowdSec Koruması)
       - "traefik.http.routers.portainer-ext.rule=Host(`${PORTAINER_EXT_FQDN}`)"
-      - "traefik.http.routers.portainer-ext.entrypoints=webexternal"
-      - "traefik.http.routers.portainer-ext.tls=true"
+      - "traefik.http.routers.portainer-ext.entrypoints=webexternalunsecure"
+      - "traefik.http.routers.portainer-ext.tls=false"
       - "traefik.http.routers.portainer-ext.middlewares=crowdsec@file,zitadel-signin@file,zitadel-forwardauth@file"
       - "traefik.http.routers.portainer-ext.service=portainer-svc"
       # Ortak WebGUI Servisi
@@ -286,8 +289,8 @@ services:
       - "traefik.http.routers.whoami-int.service=whoami-svc"
       # Router 2: Harici (.com.tr -> 444 + CrowdSec Koruması)
       - "traefik.http.routers.whoami-ext.rule=Host(`${WHOAMI_EXT_FQDN}`)"
-      - "traefik.http.routers.whoami-ext.entrypoints=webexternal"
-      - "traefik.http.routers.whoami-ext.tls=true"
+      - "traefik.http.routers.whoami-ext.entrypoints=webexternalunsecure"
+      - "traefik.http.routers.whoami-ext.tls=false"
       - "traefik.http.routers.whoami-ext.middlewares=crowdsec@file"
       - "traefik.http.routers.whoami-ext.service=whoami-svc"
       - "traefik.http.services.whoami-svc.loadbalancer.server.port=80"
@@ -375,8 +378,8 @@ services:
       - "traefik.http.routers.guacamole-int.service=guacamole-svc"
       # Router 2: Harici (.com.tr -> 444 + CrowdSec Koruması)
       - "traefik.http.routers.guacamole-ext.rule=Host(`${GUACAMOLE_EXT_FQDN}`)"
-      - "traefik.http.routers.guacamole-ext.entrypoints=webexternal"
-      - "traefik.http.routers.guacamole-ext.tls=true"
+      - "traefik.http.routers.guacamole-ext.entrypoints=webexternalunsecure"
+      - "traefik.http.routers.guacamole-ext.tls=false"
       - "traefik.http.routers.guacamole-ext.middlewares=crowdsec@file"
       - "traefik.http.routers.guacamole-ext.service=guacamole-svc"
       - "traefik.http.services.guacamole-svc.loadbalancer.server.port=8080"
@@ -420,8 +423,8 @@ services:
       - "traefik.http.routers.pgadmin-int.service=pgadmin-svc"
       # Router 2: Harici (.com.tr -> 444 + CrowdSec Korumasi)
       - "traefik.http.routers.pgadmin-ext.rule=Host(`${PGADMIN_EXT_FQDN}`)"
-      - "traefik.http.routers.pgadmin-ext.entrypoints=webexternal"
-      - "traefik.http.routers.pgadmin-ext.tls=true"
+      - "traefik.http.routers.pgadmin-ext.entrypoints=webexternalunsecure"
+      - "traefik.http.routers.pgadmin-ext.tls=false"
       - "traefik.http.routers.pgadmin-ext.middlewares=crowdsec@file"
       - "traefik.http.routers.pgadmin-ext.service=pgadmin-svc"
       - "traefik.http.services.pgadmin-svc.loadbalancer.server.port=80"
@@ -463,8 +466,8 @@ services:
       #- "traefik.http.routers.vaultwarden-int.service=vaultwarden-svc"
       # Router 2: Harici (.com.tr -> 444 + CrowdSec Koruması)
       - "traefik.http.routers.vaultwarden-ext.rule=Host(`${VAULTWARDEN_EXT_FQDN}`)"
-      - "traefik.http.routers.vaultwarden-ext.entrypoints=webexternal"
-      - "traefik.http.routers.vaultwarden-ext.tls=true"
+      - "traefik.http.routers.vaultwarden-ext.entrypoints=webexternalunsecure"
+      - "traefik.http.routers.vaultwarden-ext.tls=false"
       - "traefik.http.routers.vaultwarden-ext.middlewares=crowdsec@file"
       - "traefik.http.routers.vaultwarden-ext.service=vaultwarden-svc"
       # Router 3: Split-DNS (ic agdan .com.tr -> 443, CrowdSec yok)
