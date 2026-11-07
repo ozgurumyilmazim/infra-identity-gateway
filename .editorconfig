@@ -1,0 +1,22 @@
+root = true
+
+# Proje genelinde LF ve UTF-8 kullanılır (hedef sistem Linux).
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Bash betiklerinde 4 boşluk girinti.
+[*.sh]
+indent_size = 4
+
+# Markdown'da satır sonu boşlukları korunur.
+[*.md]
+trim_trailing_whitespace = false
+
+# Windows'a özgü betikler CRLF kullanır.
+[*.{bat,cmd,ps1}]
+end_of_line = crlf

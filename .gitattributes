@@ -1,0 +1,8 @@
+# Tüm metin dosyaları depoda ve çalışma kopyasında LF olsun.
+# Hedef sistem Linux olduğu için Windows geliştiricilerde de LF korunur.
+* text=auto eol=lf
+
+# Windows'a özgü betikler CRLF olarak kalsın.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf

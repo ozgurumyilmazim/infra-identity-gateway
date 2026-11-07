@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# ---------------------------------------------------------------------------
+# Pre-commit: LF beklenen dosyalarda CRLF satır sonu olup olmadığını denetler.
+# Etkinleştirmek için: git config core.hooksPath .githooks
+# ---------------------------------------------------------------------------
+set -e
+
+# LF beklenen dosya kalıpları (Windows betikleri hariç).
+is_lf_required() {
+    case "$1" in
+        *.bat|*.cmd|*.ps1) return 1 ;;
+    esac
+    case "$1" in
+        *.sh|*.bash|*.yml|*.yaml|*.md|*.json|*.py|*.conf|*.tmpl|*.env|*.ornek|*.service)
+            return 0 ;;
+    esac
+    case "$(basename "$1")" in
+        .gitattributes|.editorconfig|.gitignore|.env|.env.*|Dockerfile)
+            return 0 ;;
+    esac
+    return 1
+}
+
+failed=0
+
+while IFS= read -r file; do
+    [ -z "$file" ] && continue
+    [ -f "$file" ] || continue
+    is_lf_required "$file" || continue
+
+    # MSYS/Git Bash grep metin modunda CR'yi görmez; tr ile bayt karşılaştırması yapılır.
+    original_size=$(wc -c < "$file")
+    lf_size=$(tr -d '\r' < "$file" | wc -c)
+    if [ "$original_size" -ne "$lf_size" ]; then
+        echo "[pre-commit] HATA: CRLF satır sonu tespit edildi -> $file"
+        failed=1
+    fi
+done < <(git diff --cached --name-only --diff-filter=ACMR)
+
+if [ "$failed" -ne 0 ]; then
+    echo ""
+    echo "Commit engellendi. Etkilenen dosyaları LF'e dönüştürün:"
+    echo "  dos2unix <dosya>    veya editörünüzde satır sonunu LF yapın."
+    exit 1
+fi
+
+exit 0
