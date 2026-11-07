@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -e
 
+# Determine script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
 # Renkler
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -13,13 +17,13 @@ echo -e "${BLUE}        INFRA-IDENTITY-GATEWAY BAŞLATICI      ${NC}"
 echo -e "${BLUE}==============================================${NC}"
 
 # 1. Ortam ve Gizli Değişkenleri Hazırla
-if [ ! -f ./setup-env.sh ]; then
-    echo -e "${RED}[X] ./setup-env.sh betiği bulunamadı!${NC}"
+if [ ! -f "$SCRIPT_DIR/setup-env.sh" ]; then
+    echo -e "${RED}[X] "$SCRIPT_DIR/setup-env.sh" betiği bulunamadı!${NC}"
     exit 1
 fi
 echo -e "\n${YELLOW}[ADIM 1/4] Ortam değişkenleri ve yapılandırma dosyaları kontrol ediliyor...${NC}"
-chmod +x ./setup-env.sh
-./setup-env.sh
+chmod +x "$SCRIPT_DIR/setup-env.sh"
+"$SCRIPT_DIR/setup-env.sh"
 
 # .env değişkenlerini (kabuk olarak çalıştırmadan) oku ve dinamik şablonları üret
 get_env_val() {
@@ -100,14 +104,16 @@ for template in "$TEMPLATE_DIR"/*.yml.tmpl; do
     echo -e "${GREEN}[✓] ${filename} üretildi.${NC}"
 done
 
+# Change to project root for Docker commands
+cd "$PROJECT_ROOT"
 # 2. Veritabanını ve Şemaları Ayağa Kaldır
-if [ ! -f ./setup-db.sh ]; then
-    echo -e "${RED}[X] ./setup-db.sh betiği bulunamadı!${NC}"
+if [ ! -f "$SCRIPT_DIR/setup-db.sh" ]; then
+    echo -e "${RED}[X] "$SCRIPT_DIR/setup-db.sh" betiği bulunamadı!${NC}"
     exit 1
 fi
 echo -e "\n${YELLOW}[ADIM 2/4] Merkezi veritabanı ve servis kullanıcıları hazırlanıyor...${NC}"
-chmod +x ./setup-db.sh
-./setup-db.sh
+chmod +x "$SCRIPT_DIR/setup-db.sh"
+"$SCRIPT_DIR/setup-db.sh"
 
 # 3. Tüm Yığını Başlat
 echo -e "\n${YELLOW}[ADIM 3/4] Servis yığını devreye alınıyor...${NC}"
@@ -115,7 +121,7 @@ docker compose up -d
 
 # 4. Zitadel Harici Alan Adı Senkronizasyonu
 echo -e "\n${YELLOW}[ADIM 4/4] Zitadel alan adı entegrasyonu tamamlanıyor...${NC}"
-chmod +x ./setup-zitadel.sh
+chmod +x "$SCRIPT_DIR/setup-zitadel.sh"
 ./setup-zitadel.sh
 
 

@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
+# Determine script directory and project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "$PROJECT_ROOT"
+
+
 # Renkler
 RED='\033[0;31m'
 GREEN='\033[0;32m'
