@@ -42,29 +42,7 @@ for key in DOMAIN_INT DOMAIN_EXT TRUSTED_SUBNET CROWDSEC_BOUNCER_API_KEY \
     value=$(get_env_val "$key")
     value=$(expand_env_refs "$value")
     export "${key}=${value}"
-# -------------------------------------------------------------
-# .env zorunlu değişken kontrolü (run.sh)
-# -------------------------------------------------------------
-REQUIRED_VARS_RUN=(
-    DOMAIN_INT
-    DOMAIN_EXT
-    TRUSTED_SUBNET
-    CROWDSEC_BOUNCER_API_KEY
-    OPNSENSE_INT_FQDN
-    OPNSENSE_EXT_FQDN
-    OPNSENSE_INTERNAL_IP
-    OPNSENSE_INTERNAL_PORT
-)
-missing_run=0
-for var in "${REQUIRED_VARS_RUN[@]}"; do
-    if [ -z "${!var}" ]; then
-        echo -e "${RED}[X] $var .env içinde tanımlı değil, script durduruluyor!${NC}"
-        missing_run=$((missing_run+1))
-    fi
-done
-if [ $missing_run -gt 0 ]; then
-    exit 1
-fi
+
 done
 
 DYNAMIC_DIR="./traefik/dynamic"
