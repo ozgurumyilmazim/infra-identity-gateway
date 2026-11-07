@@ -87,12 +87,20 @@ CROWDSEC_OUTPUT="./crowdsec/config.yaml.local"
 render_template "$CROWDSEC_TEMPLATE_DIR/config.yaml.local.tmpl" "$CROWDSEC_OUTPUT" "${DOMAIN_EXT}" "${DOMAIN_INT}" "${TRUSTED_SUBNET}" "${CROWDSEC_BOUNCER_API_KEY}" "${OPNSENSE_INT_FQDN}" "${OPNSENSE_EXT_FQDN}" "${OPNSENSE_INTERNAL_IP}" "${OPNSENSE_INTERNAL_PORT}"
 echo -e "${GREEN}[✓] config.yaml.local üretildi.${NC}"
 
+# -------------------------------------------------------------
+# Traefik dinamik şablonları işleniyor
+# -------------------------------------------------------------
 echo -e "\n${YELLOW}[*] Traefik dinamik şablonları işleniyor...${NC}"
-mkdir -p "$DYNAMIC_DIR"
-for template in "$TRAEFIK_TEMPLATE_DIR"/*.yml.tmpl; do
-    [ -e "$template" ] || continue
-    filename=$(basename "$template" .tmpl)
-    render_template "$template" "$DYNAMIC_DIR/$filename" "${DOMAIN_EXT}" "${DOMAIN_INT}" "${TRUSTED_SUBNET}" "${CROWDSEC_BOUNCER_API_KEY}" "${OPNSENSE_INT_FQDN}" "${OPNSENSE_EXT_FQDN}" "${OPNSENSE_INTERNAL_IP}" "${OPNSENSE_INTERNAL_PORT}"
+mkdir -p "${DYNAMIC_DIR}"
+
+for template in "${TEMPLATE_DIR}"/*.yml.tmpl; do
+    [ -e "${template}" ] || continue
+    filename=$(basename "${template}" .tmpl)
+
+    # envsubst tüm ortam değişkenlerini otomatik olarak dönüştürür.
+    # Bu yüzden render_template fonksiyonuna ekstra argüman geçmiyoruz.
+    render_template "${template}" "${DYNAMIC_DIR}/${filename}"
+
     echo -e "${GREEN}[✓] ${filename} üretildi.${NC}"
 done
 
