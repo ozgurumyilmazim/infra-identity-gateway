@@ -122,7 +122,7 @@ docker compose up -d
 # 4. Zitadel Harici Alan Adı Senkronizasyonu
 echo -e "\n${YELLOW}[ADIM 4/4] Zitadel alan adı entegrasyonu tamamlanıyor...${NC}"
 chmod +x "$SCRIPT_DIR/setup-zitadel.sh"
-./setup-zitadel.sh
+"$SCRIPT_DIR/setup-zitadel.sh"
 
 
 echo -e "\n${GREEN}[✓] Tüm servisler ve alan adları başarıyla devreye alındı.${NC}\n"
