@@ -1,0 +1,19 @@
+http:
+  routers:
+    keycloak-ext:
+      rule: "Host(`${SSO_EXT_FQDN}`)"
+      entryPoints:
+        - "webexternalunsecure"
+      middlewares:
+        - "crowdsec@file"
+        #- secure-headers
+      tls: {}
+      service: "keycloak-service"
+
+  services:
+    keycloak-service:
+      loadBalancer:
+        serversTransport: "unSecureTransport"
+        servers:
+          - url: "https://${SSO_KEYCLOAK_INT_IP}:${SSO_KEYCLOAK_INT_PORT}"
+        passHostHeader: true

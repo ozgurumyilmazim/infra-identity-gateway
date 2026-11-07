@@ -12,6 +12,7 @@ Merkezi kimlik yönetimi (Univention Corporate Server Samba 4 Active Directory &
 
 * **Traefik v3:** Tüm HTTP/HTTPS ve gRPC (h2c) trafiğini yöneten ters vekil.
 * **Zitadel:** OpenID Connect ve SAML 2.0 sağlayıcısı (UCS Samba 4 ile federated çalışacak şekilde yapılandırılabilir).
+* **Keycloak:** OpenID Connect ve SAML 2.0 sağlayıcısı, UCS LDAP ve diğer uygulamalarla entegrasyon için alternatif IdP.
 * **PostgreSQL 16:** Zitadel, Guacamole, Vaultwarden ve CrowdSec için merkezi veritabanı.
 * **Portainer CE:** Konteyner yönetim arayüzü.
 * **CrowdSec:** Traefik erişim loglarını izleyen saldırı tespit ve engelleme sistemi.
