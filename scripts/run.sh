@@ -93,7 +93,7 @@ echo -e "${GREEN}[✓] config.yaml.local üretildi.${NC}"
 echo -e "\n${YELLOW}[*] Traefik dinamik şablonları işleniyor...${NC}"
 mkdir -p "${DYNAMIC_DIR}"
 
-for template in "${TEMPLATE_DIR}"/*.yml.tmpl; do
+for template in "${TRAEFIK_TEMPLATE_DIR}"/*.yml.tmpl; do
     [ -e "${template}" ] || continue
     filename=$(basename "${template}" .tmpl)
 
