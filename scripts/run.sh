@@ -46,7 +46,7 @@ for key in DOMAIN_INT DOMAIN_EXT TRUSTED_SUBNET CROWDSEC_BOUNCER_API_KEY \
 done
 
 DYNAMIC_DIR="./traefik/dynamic"
-TEMPLATE_DIR="./traefik/templates"
+TRAEFIK_TEMPLATE_DIR="./traefik/templates"
 
 
 
@@ -89,7 +89,7 @@ echo -e "${GREEN}[✓] config.yaml.local üretildi.${NC}"
 
 echo -e "\n${YELLOW}[*] Traefik dinamik şablonları işleniyor...${NC}"
 mkdir -p "$DYNAMIC_DIR"
-for template in "$TEMPLATE_DIR"/*.yml.tmpl; do
+for template in "$TRAEFIK_TEMPLATE_DIR"/*.yml.tmpl; do
     [ -e "$template" ] || continue
     filename=$(basename "$template" .tmpl)
     render_template "$template" "$DYNAMIC_DIR/$filename" "${DOMAIN_EXT}" "${DOMAIN_INT}" "${TRUSTED_SUBNET}" "${CROWDSEC_BOUNCER_API_KEY}" "${OPNSENSE_INT_FQDN}" "${OPNSENSE_EXT_FQDN}" "${OPNSENSE_INTERNAL_IP}" "${OPNSENSE_INTERNAL_PORT}"
