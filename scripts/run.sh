@@ -50,7 +50,32 @@ TRAEFIK_TEMPLATE_DIR="./traefik/templates"
 
 
 
-render_template() {
+render_template_traefik() {
+    local template="$1"
+    local output="$2"
+    # envsubst will replace all environment variables present in the template
+    if command -v envsubst > /dev/null 2>&1; then
+        envsubst < "$template" > "$output"
+        return
+    fi
+    # Fallback: simple variable substitution using Bash expansion
+    local content
+    content=$(<"$template")
+    printf '%s\n' "$content" > "$output"
+}
+
+render_template_crowdsec() {
+    local template="$1"
+    local output="$2"
+    # CrowdSec template also uses envsubst for all vars
+    if command -v envsubst > /dev/null 2>&1; then
+        envsubst < "$template" > "$output"
+        return
+    fi
+    local content
+    content=$(<"$template")
+    printf '%s\n' "$content" > "$output"
+}
     local template="$1"
     local output="$2"
     shift 2
