@@ -41,22 +41,36 @@ for key in DOMAIN_INT DOMAIN_EXT TRUSTED_SUBNET CROWDSEC_BOUNCER_API_KEY \
            OPNSENSE_INT_FQDN OPNSENSE_EXT_FQDN OPNSENSE_INTERNAL_IP OPNSENSE_INTERNAL_PORT; do
     value=$(get_env_val "$key")
     value=$(expand_env_refs "$value")
-    export "$key=$value"
+    export "${key}=${value}"
+# -------------------------------------------------------------
+# .env zorunlu değişken kontrolü (run.sh)
+# -------------------------------------------------------------
+REQUIRED_VARS_RUN=(
+    DOMAIN_INT
+    DOMAIN_EXT
+    TRUSTED_SUBNET
+    CROWDSEC_BOUNCER_API_KEY
+    OPNSENSE_INT_FQDN
+    OPNSENSE_EXT_FQDN
+    OPNSENSE_INTERNAL_IP
+    OPNSENSE_INTERNAL_PORT
+)
+missing_run=0
+for var in "${REQUIRED_VARS_RUN[@]}"; do
+    if [ -z "${!var}" ]; then
+        echo -e "${RED}[X] $var .env içinde tanımlı değil, script durduruluyor!${NC}"
+        missing_run=$((missing_run+1))
+    fi
+done
+if [ $missing_run -gt 0 ]; then
+    exit 1
+fi
 done
 
 DYNAMIC_DIR="./traefik/dynamic"
 TEMPLATE_DIR="./traefik/templates"
 
-TEMPLATE_VARS=(
-    '${DOMAIN_EXT}'
-    '${DOMAIN_INT}'
-    '${TRUSTED_SUBNET}'
-    '${CROWDSEC_BOUNCER_API_KEY}'
-    '${OPNSENSE_INT_FQDN}'
-    '${OPNSENSE_EXT_FQDN}'
-    '${OPNSENSE_INTERNAL_IP}'
-    '${OPNSENSE_INTERNAL_PORT}'
-)
+
 
 render_template() {
     local template="$1"
@@ -83,7 +97,7 @@ render_template() {
 echo -e "\n${YELLOW}[*] CrowdSec konfigürasyon şablonu işleniyor...${NC}"
 CROWDSEC_TEMPLATE_DIR="./crowdsec/templates"
 CROWDSEC_OUTPUT="./crowdsec/config.yaml.local"
-render_template "$CROWDSEC_TEMPLATE_DIR/config.yaml.local.tmpl" "$CROWDSEC_OUTPUT" "${TEMPLATE_VARS[@]}"
+render_template "$CROWDSEC_TEMPLATE_DIR/config.yaml.local.tmpl" "$CROWDSEC_OUTPUT" "${DOMAIN_EXT}" "${DOMAIN_INT}" "${TRUSTED_SUBNET}" "${CROWDSEC_BOUNCER_API_KEY}" "${OPNSENSE_INT_FQDN}" "${OPNSENSE_EXT_FQDN}" "${OPNSENSE_INTERNAL_IP}" "${OPNSENSE_INTERNAL_PORT}"
 echo -e "${GREEN}[✓] config.yaml.local üretildi.${NC}"
     printf '%s\n' "$content" > "$output"
 }
@@ -92,7 +106,7 @@ echo -e "${GREEN}[✓] config.yaml.local üretildi.${NC}"
 echo -e "\n${YELLOW}[*] CrowdSec konfigürasyon şablonu işleniyor...${NC}"
 CROWDSEC_TEMPLATE_DIR="./crowdsec/templates"
 CROWDSEC_OUTPUT="./crowdsec/config.yaml.local"
-render_template "$CROWDSEC_TEMPLATE_DIR/config.yaml.local.tmpl" "$CROWDSEC_OUTPUT" "${TEMPLATE_VARS[@]}"
+render_template "$CROWDSEC_TEMPLATE_DIR/config.yaml.local.tmpl" "$CROWDSEC_OUTPUT" "${DOMAIN_EXT}" "${DOMAIN_INT}" "${TRUSTED_SUBNET}" "${CROWDSEC_BOUNCER_API_KEY}" "${OPNSENSE_INT_FQDN}" "${OPNSENSE_EXT_FQDN}" "${OPNSENSE_INTERNAL_IP}" "${OPNSENSE_INTERNAL_PORT}"
 echo -e "${GREEN}[✓] config.yaml.local üretildi.${NC}"
 
 echo -e "\n${YELLOW}[*] Traefik dinamik şablonları işleniyor...${NC}"
@@ -100,7 +114,7 @@ mkdir -p "$DYNAMIC_DIR"
 for template in "$TEMPLATE_DIR"/*.yml.tmpl; do
     [ -e "$template" ] || continue
     filename=$(basename "$template" .tmpl)
-    render_template "$template" "$DYNAMIC_DIR/$filename" "${TEMPLATE_VARS[@]}"
+    render_template "$template" "$DYNAMIC_DIR/$filename" "${DOMAIN_EXT}" "${DOMAIN_INT}" "${TRUSTED_SUBNET}" "${CROWDSEC_BOUNCER_API_KEY}" "${OPNSENSE_INT_FQDN}" "${OPNSENSE_EXT_FQDN}" "${OPNSENSE_INTERNAL_IP}" "${OPNSENSE_INTERNAL_PORT}"
     echo -e "${GREEN}[✓] ${filename} üretildi.${NC}"
 done
 

@@ -49,6 +49,31 @@ gen_random_secret() {
 echo -e "\n${BLUE}==============================================${NC}"
 echo -e "${BLUE}        MEVCUT .env YAPILANDIRMA ÖZETİ        ${NC}"
 echo -e "${BLUE}==============================================${NC}"
+# -------------------------------------------------------------
+# .env Zorunlu Değişken Kontrolü
+# -------------------------------------------------------------
+REQUIRED_VARS=(
+    DOMAIN_INT
+    DOMAIN_EXT
+    TRUSTED_SUBNET
+    CROWDSEC_BOUNCER_API_KEY
+    OPNSENSE_INT_FQDN
+    OPNSENSE_EXT_FQDN
+    OPNSENSE_INTERNAL_IP
+    OPNSENSE_INTERNAL_PORT
+)
+missing=0
+for var in "${REQUIRED_VARS[@]}"; do
+    val=$(get_env_val "$var")
+    if [ -z "$val" ]; then
+        echo -e "${YELLOW}[!] $var .env içinde tanımlı değil, boş değer ekleniyor...${NC}"
+        set_env_val "$var" ""
+        missing=$((missing+1))
+    fi
+done
+if [ $missing -gt 0 ]; then
+    echo -e "${GREEN}[✓] .env içinde $missing eksik tanım dolduruldu.${NC}"
+fi
 
 # DOMAIN_INT ve DOMAIN_EXT'i oku; FQDN sablonlarindaki ${DOMAIN_*} referanslarini coz
 _DOMAIN_INT=$(get_env_val "DOMAIN_INT")
