@@ -310,18 +310,20 @@ chmod 644 pgadmin/config_local.py
 chown 5050:5050 pgadmin/config_local.py 2>/dev/null || true
 
 # CrowdSec config.yaml.local oluşturma
-cat <<EOF > crowdsec/config.yaml.local
-db_config:
-  log_level: info
-  type: postgresql
-  user: ${CROWDSEC_USER}
-  password: ${CROWDSEC_PASS}
-  db_name: ${CROWDSEC_DB}
-  host: db
-  port: 5432
-  sslmode: disable
-EOF
-chmod 644 crowdsec/config.yaml.local
+CROWDSEC_TEMPLATE_DIR="./crowdsec/templates"
+CROWDSEC_OUTPUT="./crowdsec/config.yaml.local"
+if command -v envsubst > /dev/null 2>&1; then
+    envsubst < "$CROWDSEC_TEMPLATE_DIR/config.yaml.local.tmpl" > "$CROWDSEC_OUTPUT"
+else
+    # fallback: basit değişken ikamesi
+    content=$(<"$CROWDSEC_TEMPLATE_DIR/config.yaml.local.tmpl")
+    content=${content//\${CROWDSEC_USER}/$CROWDSEC_USER}
+    content=${content//\${CROWDSEC_PASS}/$CROWDSEC_PASS}
+    content=${content//\${CROWDSEC_DB}/$CROWDSEC_DB}
+    printf '%s\n' "$content" > "$CROWDSEC_OUTPUT"
+fi
+chmod 644 "$CROWDSEC_OUTPUT"
+echo -e "${GREEN}[✓] CrowdSec config.yaml.local üretildi.${NC}"
 
 
 # -------------------------------------------------------------

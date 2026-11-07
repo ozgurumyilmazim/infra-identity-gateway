@@ -74,8 +74,22 @@ render_template() {
         value=${!var:-}
         content=${content//\$\{$var\}/$value}
     done
+
+# Yeni: CrowdSec konfigürasyon şablonu işleme
+echo -e "\n${YELLOW}[*] CrowdSec konfigürasyon şablonu işleniyor...${NC}"
+CROWDSEC_TEMPLATE_DIR="./crowdsec/templates"
+CROWDSEC_OUTPUT="./crowdsec/config.yaml.local"
+render_template "$CROWDSEC_TEMPLATE_DIR/config.yaml.local.tmpl" "$CROWDSEC_OUTPUT" "${TEMPLATE_VARS[@]}"
+echo -e "${GREEN}[✓] config.yaml.local üretildi.${NC}"
     printf '%s\n' "$content" > "$output"
 }
+
+# Yeni: CrowdSec konfigürasyon şablonu işleme
+echo -e "\n${YELLOW}[*] CrowdSec konfigürasyon şablonu işleniyor...${NC}"
+CROWDSEC_TEMPLATE_DIR="./crowdsec/templates"
+CROWDSEC_OUTPUT="./crowdsec/config.yaml.local"
+render_template "$CROWDSEC_TEMPLATE_DIR/config.yaml.local.tmpl" "$CROWDSEC_OUTPUT" "${TEMPLATE_VARS[@]}"
+echo -e "${GREEN}[✓] config.yaml.local üretildi.${NC}"
 
 echo -e "\n${YELLOW}[*] Traefik dinamik şablonları işleniyor...${NC}"
 mkdir -p "$DYNAMIC_DIR"

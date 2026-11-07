@@ -30,7 +30,7 @@ pgadmin/servers.json
 pgadmin/config_local.py
 
 # Crowdsec
-crowdsec/config.yaml.local
+crowdsec/*.yaml.local
 
 # Traefik
 traefik/plugins-local/
