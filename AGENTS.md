@@ -42,3 +42,14 @@ git reset --hard
 
 Windows'ta `core.autocrlf` ayarını değiştirmeye gerek yoktur; `.gitattributes` bu ayarı geçersiz kılar.
 
+## 4. Gizli Bilgi (Secret) Yönetimi
+
+* **Temel kural:** Üretilen hiçbir gizli değer (parola, token, API anahtarı, özel anahtar, parola hash'i) git tarafından izlenen bir dosyaya yazılmamalıdır. Gizli değerler yalnızca `.env` veya `.gitignore` ile hariç tutulmuş çalışma zamanı dosyalarında tutulur.
+* **Şablonlar:** Repoya yalnızca yer tutucu içeren şablonlar girer: `${DEGISKEN}`, `<ACIKLAMA>` veya boş değer. `env.ornek` gerçek parola, token veya varsayılan kimlik bilgisi içermemelidir.
+* **Üretilen dosyalar:** `setup-env.sh` ve `run.sh` tarafından üretilen dosyalar izlenmemelidir: `.env`, `pgadmin/pgpass`, `pgadmin/servers.json`, `pgadmin/config_local.py`, `crowdsec/config.yaml.local`, `traefik/dynamic/*.yml`, `traefik/dynamic/usersfile`, `traefik/certs/*`, `traefik/plugins-local/*`. `.gitignore`'da bulunmaları izlenmedikleri anlamına gelmez; `git ls-files` ile doğrulanır.
+* **Şablon kopyaları:** Bu dosyaların yer tutucu içeren örnekleri `crowdsec/config.yaml.local.example` ve `pgadmin/servers.json.example` olarak izlenir; gerçek çıktılar çalışma zamanında üretilir.
+* **Zorla ekleme yasağı:** Gizli değer içeren veya çalışma zamanında üretilen dosyalar `git add -f` ile zorla eklenmez.
+* **Sızıntı halinde:** Değer derhal döndürülür (rotate), git geçmişinden temizlenir ve ekip bilgilendirilir. Dosyayı silmek veya yeni bir commit atmak tek başına yeterli değildir.
+* **Kontrol:** Yeni dosya veya betik eklerken gizli değer üreten çıktının hedefi doğrulanır: `git check-ignore --no-index -v <dosya>` ve `git ls-files <dosya>`.
+* **Araçlar:** Pre-commit sırasında `gitleaks` kuruluysa otomatik tarama yapılır; CI'da zorunludur. Kurulum: `winget install gitleaks`, `choco install gitleaks`, `brew install gitleaks` veya GitHub Releases.
+

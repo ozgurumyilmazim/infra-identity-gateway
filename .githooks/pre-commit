@@ -1,9 +1,34 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------------
-# Pre-commit: LF beklenen dosyalarda CRLF satır sonu olup olmadığını denetler.
-# Etkinleştirmek için: git config core.hooksPath .githooks
+# Pre-commit kontrolleri:
+#   1) Gizli deger / runtime dosyalarinin yanlislikla eklenmesini engeller.
+#   2) LF beklenen dosyalarda CRLF satir sonunu engeller.
+#   3) gitleaks kuruluysa gizli deger taramasi yapar.
+# Etkinlestirmek icin: git config core.hooksPath .githooks
 # ---------------------------------------------------------------------------
 set -e
+
+# Gizli deger ureten veya runtime'da olusan, asla izlenmemesi gereken yollar.
+# .example / .ornek dosyalari bilincli olarak serbesttir.
+is_forbidden() {
+    case "$1" in
+        .env|.env.local|.env.*)
+            case "$1" in *.example|*.ornek) return 1 ;; esac
+            return 0 ;;
+    esac
+    case "$1" in
+        pgadmin/pgpass|pgadmin/servers.json|crowdsec/config.yaml.local)
+            return 0 ;;
+        traefik/dynamic/*.yml|traefik/dynamic/*.yaml|traefik/dynamic/usersfile)
+            return 0 ;;
+        traefik/certs/*)
+            case "$1" in traefik/certs/.gitkeep) return 1 ;; esac
+            return 0 ;;
+        traefik/plugins-local/*)
+            return 0 ;;
+    esac
+    return 1
+}
 
 # LF beklenen dosya kalıpları (Windows betikleri hariç).
 is_lf_required() {
@@ -11,7 +36,7 @@ is_lf_required() {
         *.bat|*.cmd|*.ps1) return 1 ;;
     esac
     case "$1" in
-        *.sh|*.bash|*.yml|*.yaml|*.md|*.json|*.py|*.conf|*.tmpl|*.env|*.ornek|*.service)
+        *.sh|*.bash|*.yml|*.yaml|*.md|*.json|*.py|*.conf|*.toml|*.tmpl|*.env|*.ornek|*.service)
             return 0 ;;
     esac
     case "$(basename "$1")" in
@@ -23,6 +48,16 @@ is_lf_required() {
 
 failed=0
 
+# 1) Yasakli dosya kontrolu
+while IFS= read -r file; do
+    [ -z "$file" ] && continue
+    if is_forbidden "$file"; then
+        echo "[pre-commit] HATA: Gizli/runtime dosyasi izlenemez -> $file"
+        failed=1
+    fi
+done < <(git diff --cached --name-only --diff-filter=ACMR)
+
+# 2) CRLF kontrolu
 while IFS= read -r file; do
     [ -z "$file" ] && continue
     [ -f "$file" ] || continue
@@ -39,9 +74,30 @@ done < <(git diff --cached --name-only --diff-filter=ACMR)
 
 if [ "$failed" -ne 0 ]; then
     echo ""
-    echo "Commit engellendi. Etkilenen dosyaları LF'e dönüştürün:"
-    echo "  dos2unix <dosya>    veya editörünüzde satır sonunu LF yapın."
+    echo "Commit engellendi. Yukaridaki dosyalari duzeltin:"
+    echo "  - Gizli/runtime dosyalari : git rm --cached <dosya>"
+    echo "  - CRLF                    : dos2unix <dosya> veya editörünüzde satır sonunu LF yapın."
     exit 1
+fi
+
+# 3) gitleaks (kuruluysa)
+if command -v gitleaks >/dev/null 2>&1; then
+    if gitleaks git --help >/dev/null 2>&1; then
+        if ! gitleaks git --staged --redact --config .gitleaks.toml; then
+            echo "[pre-commit] HATA: gitleaks gizli deger tespit etti."
+            exit 1
+        fi
+    elif gitleaks protect --help >/dev/null 2>&1; then
+        if ! gitleaks protect --staged --redact --config .gitleaks.toml; then
+            echo "[pre-commit] HATA: gitleaks gizli deger tespit etti."
+            exit 1
+        fi
+    else
+        echo "[pre-commit] UYARI: gitleaks komutu taninmadi, tarama atlandi."
+    fi
+else
+    echo "[pre-commit] UYARI: gitleaks kurulu degil, gizli deger taramasi atlandi."
+    echo "             Kurulum: https://github.com/gitleaks/gitleaks#installing"
 fi
 
 exit 0
