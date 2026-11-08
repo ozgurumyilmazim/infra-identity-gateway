@@ -6,9 +6,14 @@
 # Kullanım: proje kök dizininde .env dosyası (env.ornek kopyalanıp düzenlenmiş) bulunmalı.
 
 set -euo pipefail
+# envsubst komutunun kurulu olduğundan emin ol
+if ! command -v envsubst >/dev/null 2>&1; then
+  echo "[HATA] envsubst bulunamadı. 'gettext' paketini kurun (ör. apt-get install gettext)."
+  exit 1
+fi
 
 # Proje kök dizini (bu betiğin bulunduğu dizinin bir üstü)
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.. && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 ENV_FILE="$PROJECT_ROOT/.env"
 TEMPLATE_DIR="$PROJECT_ROOT/traefik/templates"
