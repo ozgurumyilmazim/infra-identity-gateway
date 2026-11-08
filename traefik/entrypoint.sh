@@ -44,7 +44,7 @@ exec traefik \
   --entrypoints.webexternalsecure.address=:444 \
   --entrypoints.webexternalsecure.forwardedheaders.trustedips=127.0.0.1/32,${TRUSTED_SUBNET} \
   --entrypoints.webexternalunsecure.address=:88 \
-  --entrypoints.webexternalunsecure.forwardedheaders.trustedips=127.0.0-1/32,${TRUSTED_SUBNET} \
+  --entrypoints.webexternalunsecure.forwardedheaders.trustedips=127.0.0.1/32,${TRUSTED_SUBNET} \
   --accesslog=true \
   --accesslog.filepath=/var/log/traefik/access.log \
   --accesslog.bufferingsize=100 \
