@@ -1,5 +1,33 @@
 #!/bin/sh
 set -e
+
+# ------------------------------------------------------------
+# Zorunlu ortam değişkenlerini kontrol edin
+# ------------------------------------------------------------
+missing=false
+for var in TRUSTED_SUBNET DOMAIN_EXT ACME_EMAIL; do
+  eval val=\${$var}
+  if [ -z "$val" ]; then
+    echo "✖️  ERROR: $var is not set or empty"
+    missing=true
+  fi
+done
+
+# TRUSTED_SUBNET için basit CIDR kontrolü
+if [ -n "${TRUSTED_SUBNET}" ]; then
+  case "${TRUSTED_SUBNET}" in
+    */*) ;; # / içeriyorsa kabul et
+    *)
+      echo "✖️  ERROR: TRUSTED_SUBNET must be a CIDR (e.g., 127.0.0.1/32). Got: ${TRUSTED_SUBNET}"
+      missing=true
+      ;;
+  esac
+fi
+
+if $missing; then
+  exit 1
+fi
+
 exec traefik \
   --api.dashboard=true \
   --api.insecure=false \
