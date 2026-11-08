@@ -88,12 +88,9 @@ TEMPLATE_DIR="./traefik/templates"
 
 echo -e "\n${YELLOW}[*] Traefik dinamik şablonları işleniyor...${NC}"
 mkdir -p "${DYNAMIC_DIR}"
-
 for template in "${TEMPLATE_DIR}"/*.yml.tmpl; do
     [ -e "${template}" ] || continue
     filename=$(basename "${template}" .tmpl)
-
-    # Tüm env değişkenlerini envsubst otomatik doldurur
     render_template_traefik "${template}" "${DYNAMIC_DIR}/${filename}"
     echo -e "${GREEN}[✓] ${filename} üretildi.${NC}"
 done
