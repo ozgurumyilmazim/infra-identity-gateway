@@ -2,7 +2,8 @@
 # render_traefik_dynamic_files.sh
 # Şablonları .env değişkenleriyle doldurur → traefik/dynamic
 
-set -euo pipefail
+set -x  # Debug: komutları göster
+
 
 # envsubst kurulu mu?
 if command -v envsubst >/dev/null 2>&1; then
