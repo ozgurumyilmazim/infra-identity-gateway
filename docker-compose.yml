@@ -3,7 +3,8 @@ services:
   # 1. INGRESS & REVERSE PROXY: TRAEFIK v3
   # ==========================================
   traefik:
-    image: traefik:v3
+    build:
+      context: ./traefik
     container_name: traefik
     restart: unless-stopped
     entrypoint: [ "/entrypoint.sh" ]
