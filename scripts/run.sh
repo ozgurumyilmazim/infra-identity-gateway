@@ -28,12 +28,24 @@ expand_env_refs() {
     value=${value//\${DOMAIN_EXT}/$DOMAIN_EXT}
     printf '%s' "$value"
 }
-for key in DOMAIN_INT DOMAIN_EXT TRUSTED_SUBNET CROWDSEC_BOUNCER_API_KEY \
+for key in DOMAIN_INT DOMAIN_EXT TRUSTED_SUBNET ACME_EMAIL CROWDSEC_BOUNCER_API_KEY \
            OPNSENSE_INT_FQDN OPNSENSE_EXT_FQDN OPNSENSE_INTERNAL_IP OPNSENSE_INTERNAL_PORT; do
     val=$(get_env_val "$key")
     val=$(expand_env_refs "$val")
     export "${key}=${val}"
 done
+
+# Validate required variables
+missing=false
+for var in TRUSTED_SUBNET DOMAIN_EXT ACME_EMAIL; do
+    if [ -z "${!var}" ]; then
+        echo -e "${RED}[X] Required env var $var is not set or empty${NC}"
+        missing=true
+    fi
+done
+if $missing; then
+    exit 1
+fi
 
 # -----------------------------------------------------------------
 

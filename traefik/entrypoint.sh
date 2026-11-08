@@ -16,18 +16,13 @@ exec traefik \
   --entrypoints.webexternalsecure.address=:444 \
   --entrypoints.webexternalsecure.forwardedheaders.trustedips=127.0.0.1/32,${TRUSTED_SUBNET} \
   --entrypoints.webexternalunsecure.address=:88 \
-  --entrypoints.webexternalunsecure.forwardedheaders.trustedips=127.0.0.1/32,${TRUSTED_SUBNET} \
+  --entrypoints.webexternalunsecure.forwardedheaders.trustedips=127.0.0-1/32,${TRUSTED_SUBNET} \
   --accesslog=true \
   --accesslog.filepath=/var/log/traefik/access.log \
   --accesslog.bufferingsize=100 \
   --experimental.localplugins.crowdsec.modulename=github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin \
-  "traefik.http.routers.traefik-dash.rule=Host(`traefik.${DOMAIN_EXT}`)" \
-  "traefik.http.routers.traefik-dash.service=api@internal" \
-  "traefik.http.routers.traefik-dash.entrypoints=webexternalunsecure" \
-  "traefik.http.routers.traefik-dash.tls=false" \
   --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL} \
   --certificatesresolvers.letsencrypt.acme.storage=/certs/acme.json \
   --certificatesresolvers.letsencrypt.acme.dnschallenge=true \
   --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare \
   --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53
-
