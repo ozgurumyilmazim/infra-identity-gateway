@@ -35,6 +35,8 @@ cd infra-identity-gateway
 `env.ornek` dosyasını `.env` olarak kopyalayın ve ağ/alan adı bilgilerinizi güncelleyin.
 ```bash
 cp env.ornek .env
+
+> **Not:** `render_traefik_dynamic_files.sh` betiği `envsubst` komutunu kullanır. Linux ortamında `envsubst` paketinin (gettext) kurulu olması gerekir. Ubuntu/Debian için `sudo apt-get install -y gettext` veya Fedora için `sudo dnf install gettext` komutlarıyla kurabilirsiniz.
 ```
 
 `.env` içerisinde en az aşağıdaki alanları kendi ortamınıza göre düzenleyin:
