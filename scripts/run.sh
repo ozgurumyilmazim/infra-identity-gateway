@@ -36,64 +36,7 @@ for key in DOMAIN_INT DOMAIN_EXT TRUSTED_SUBNET CROWDSEC_BOUNCER_API_KEY \
 done
 
 # -----------------------------------------------------------------
-# ŞABLON İŞLEME – TRAEFIK
-# -----------------------------------------------------------------
-render_template_traefik() {
-    local template="$1"
-    local output="$2"
 
-    # envsubst tüm ortam değişkenlerini otomatik olarak değiştirir
-    if command -v envsubst > /dev/null 2>&1; then
-        envsubst < "$template" > "$output"
-        return
-    fi
-
-    # Fallback – sadece içeriği kopyalar
-    local content
-    content=$(<"$template")
-    printf '%s\n' "$content" > "$output"
-}
-
-# -----------------------------------------------------------------
-# ŞABLON İŞLEME – CROWDSEC
-# -----------------------------------------------------------------
-render_template_crowdsec() {
-    local template="$1"
-    local output="$2"
-
-    if command -v envsubst > /dev/null 2>&1; then
-        envsubst < "$template" > "$output"
-        return
-    fi
-
-    local content
-    content=$(<"$template")
-    printf '%s\n' "$content" > "$output"
-}
-
-# -----------------------------------------------------------------
-# CrowdSec konfigürasyon şablonu
-# -----------------------------------------------------------------
-CROWDSEC_TEMPLATE_DIR="./crowdsec/templates"
-CROWDSEC_OUTPUT="./crowdsec/config.yaml.local"
-echo -e "\n${YELLOW}[*] CrowdSec konfigürasyon şablonu işleniyor...${NC}"
-render_template_crowdsec "$CROWDSEC_TEMPLATE_DIR/config.yaml.local.tmpl" "$CROWDSEC_OUTPUT"
-echo -e "${GREEN}[✓] config.yaml.local üretildi.${NC}"
-
-# -----------------------------------------------------------------
-# Traefik dinamik şablonları
-# -----------------------------------------------------------------
-DYNAMIC_DIR="./traefik/dynamic"
-TEMPLATE_DIR="./traefik/templates"
-
-echo -e "\n${YELLOW}[*] Traefik dinamik şablonları işleniyor...${NC}"
-mkdir -p "${DYNAMIC_DIR}"
-for template in "${TEMPLATE_DIR}"/*.yml.tmpl; do
-    [ -e "${template}" ] || continue
-    filename=$(basename "${template}" .tmpl)
-    render_template_traefik "${template}" "${DYNAMIC_DIR}/${filename}"
-    echo -e "${GREEN}[✓] ${filename} üretildi.${NC}"
-done
 
 # -----------------------------------------------------------------
 # Docker compose çalıştırma (kalan script aynı kalır)
