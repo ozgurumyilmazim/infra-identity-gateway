@@ -1,5 +1,19 @@
 http:
+  # UCS Keycloak, Apache arkasında SNI/Host ile sanal host seçer.
+  # Upstream'e IP ile bağlanıldığında Traefik varsayılan olarak SNI olarak IP
+  # gönderir; Apache bu durumda varsayılan vhost'a düşüp 404 döndürür.
+  # Bu yüzden TLS el sıkışmasında Keycloak vhost'unun FQDN'ini SNI olarak
+  # gönderiyoruz. UCS tarafında ilgili vhost'un adı SSO_EXT_FQDN ile aynı
+  # olmalıdır:
+  #   ucr set keycloak/server/sso/fqdn="${SSO_EXT_FQDN}"
+  #   univention-app configure keycloak
+  serversTransports:
+    keycloakTransport:
+      insecureSkipVerify: true
+      serverName: "${SSO_EXT_FQDN}"
+
   routers:
+    # Harici ağ: düz HTTP (port 88) + CrowdSec
     keycloak-ext:
       rule: "Host(`${SSO_EXT_FQDN}`)"
       entryPoints:
@@ -7,13 +21,30 @@ http:
       middlewares:
         - "crowdsec@file"
         #- secure-headers
+      # DİKKAT: webexternalunsecure düz HTTP (port 88) dinler.
+      # Buraya "tls: {}" eklenirse router yalnızca HTTPS isteklerini karşılar
+      # ve port 88'e gelen düz HTTP istekleri Traefik tarafından 404 döner.
+      service: "keycloak-service"
+
+    # 443: iç ağ / split-DNS ve dışarıdan 443 yönlendirmesi
+    keycloak-ext-split:
+      rule: "Host(`${SSO_EXT_FQDN}`)"
+      entryPoints:
+        - "websecure"
+      # İç ağdan gelen istekleri CrowdSec ile engellememek için middleware yok.
+      # Dışarıdan 443 doğrudan Traefik'e geliyorsa geçerli bir sertifika için
+      # aşağıdaki satırı "tls: {}" yerine kullanın:
+      # tls:
+      #   certResolver: "letsencrypt"
       tls: {}
       service: "keycloak-service"
 
   services:
     keycloak-service:
       loadBalancer:
-        serversTransport: "unSecureTransport"
+        serversTransport: "keycloakTransport"
         servers:
           - url: "https://${SSO_KEYCLOAK_INT_IP}:${SSO_KEYCLOAK_INT_PORT}"
+        # Keycloak isteği kendi (harici) host adıyla görmeli; aksi halde
+        # üretilen URL'ler ve yönlendirmeler yanlış host'a işaret eder.
         passHostHeader: true

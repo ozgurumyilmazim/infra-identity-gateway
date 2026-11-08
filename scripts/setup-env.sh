@@ -91,6 +91,7 @@ printf "%-25s : %s | %s\n" "PORTAINER FQDN" "$(expand_fqdn "$(get_env_val "PORTA
 printf "%-25s : %s | %s\n" "GUACAMOLE FQDN" "$(expand_fqdn "$(get_env_val "GUACAMOLE_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "GUACAMOLE_EXT_FQDN")")"
 printf "%-25s : %s | %s\n" "VAULTWARDEN FQDN" "$(expand_fqdn "$(get_env_val "VAULTWARDEN_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "VAULTWARDEN_EXT_FQDN")")"
 printf "%-25s : %s | %s\n" "WHOAMI FQDN" "$(expand_fqdn "$(get_env_val "WHOAMI_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "WHOAMI_EXT_FQDN")")"
+printf "%-25s : %s -> %s:%s\n" "SSO (KEYCLOAK) TARGET" "$(expand_fqdn "$(get_env_val "SSO_EXT_FQDN")")" "$(get_env_val "SSO_KEYCLOAK_INT_IP")" "$(get_env_val "SSO_KEYCLOAK_INT_PORT")"
 printf "%-25s : %s:%s\n" "OPNSENSE_TARGET" "$(get_env_val "OPNSENSE_INTERNAL_IP")" "$(get_env_val "OPNSENSE_INTERNAL_PORT")"
 printf "%-25s : %s (%s)\n" "UCS_AD_TARGET" "$(expand_fqdn "$(get_env_val "UCS_HOST")")" "$(get_env_val "UCS_IP")"
 printf "%-25s : %s | %s\n" "PGADMIN FQDN" "$(expand_fqdn "$(get_env_val "PGADMIN_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "PGADMIN_EXT_FQDN")")"
