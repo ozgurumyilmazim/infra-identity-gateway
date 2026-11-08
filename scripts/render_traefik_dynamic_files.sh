@@ -6,10 +6,12 @@
 # Kullanım: proje kök dizininde .env dosyası (env.ornek kopyalanıp düzenlenmiş) bulunmalı.
 
 set -euo pipefail
-# envsubst komutunun kurulu olduğundan emin ol
-if ! command -v envsubst >/dev/null 2>&1; then
-  echo "[HATA] envsubst bulunamadı. 'gettext' paketini kurun (ör. apt-get install gettext)."
-  exit 1
+# envsubst komutunun kurulu olup olmadığını kontrol et
+if command -v envsubst >/dev/null 2>&1; then
+  HAVE_ENVSUBST=true
+else
+  HAVE_ENVSUBST=false
+  echo "[UYARI] envsubst bulunamadı – şablon dosyaları doğrudan kopyalanacak."
 fi
 
 # Proje kök dizini (bu betiğin bulunduğu dizinin bir üstü)
@@ -71,8 +73,13 @@ for tmpl_path in "${templates[@]}"; do
 
   # envsubst ile şablonu render et
   rendered="$DYNAMIC_DIR/$tmpl_file"
-  envsubst < "$tmpl_path" > "$rendered"
-  echo "Render edilmiş dosya: $rendered"
+  if $HAVE_ENVSUBST; then
+    envsubst < "$tmpl_path" > "$rendered"
+    echo "Render edilmiş dosya (envsubst): $rendered"
+  else
+    cp "$tmpl_path" "$rendered"
+    echo "Kopyalanan dosya (envsubst yok): $rendered"
+  fi
 done
 
 echo "\nTüm işlemler tamamlandı."
