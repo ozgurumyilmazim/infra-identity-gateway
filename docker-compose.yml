@@ -240,7 +240,7 @@ services:
       - "traefik.http.routers.portainer-ext.rule=Host(`${PORTAINER_EXT_FQDN}`)"
       - "traefik.http.routers.portainer-ext.entrypoints=webexternalunsecure"
       - "traefik.http.routers.portainer-ext.tls=false"
-      - "traefik.http.routers.portainer-ext.middlewares=crowdsec@file,zitadel-signin@file,zitadel-forwardauth@file"
+      - "traefik.http.routers.portainer-ext.middlewares=crowdsec@file"
       - "traefik.http.routers.portainer-ext.service=portainer-svc"
       # Ortak WebGUI Servisi
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
