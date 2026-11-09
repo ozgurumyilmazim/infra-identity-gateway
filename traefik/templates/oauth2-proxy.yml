@@ -1,11 +1,17 @@
 http:
   routers:
-    oauth2-proxy:
+    oauth2-proxy-ext:
       rule: "Host(`auth.icat.com.tr`)"
       entryPoints:
        # - websecure
         - webexternalunsecure
        # - webexternalsecure
+      service: oauth2-proxy 
+    oauth2-proxy-int:
+      rule: "Host(`auth.icat.com.tr`)"
+      entryPoints:
+       - websecure
+       - webexternalsecure
       tls: {}
       service: oauth2-proxy
   services:
