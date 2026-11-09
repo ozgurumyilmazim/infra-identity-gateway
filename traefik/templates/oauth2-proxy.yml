@@ -12,3 +12,4 @@ http:
         servers:
           - url: "http://oauth2-proxy:4180"
   middlewares: {}
+  
