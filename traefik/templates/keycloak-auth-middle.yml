@@ -1,0 +1,13 @@
+http:
+  middlewares:
+    keycloak-auth:
+      forwardAuth:
+        # OAuth2-Proxy konteynerinin dahili adresi ve portu
+        address: "http://oauth2-proxy:4180/"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - "X-Auth-Request-User"
+          - "X-Auth-Request-Email"
+          - "X-Auth-Request-Preferred-Username"
+          - "X-Auth-Request-Access-Token"
+          - "Authorization"
