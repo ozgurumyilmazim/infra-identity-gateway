@@ -16,3 +16,4 @@ http:
           forwardedHeadersTrustedIps:
             - "127.0.0.1/32"
             - "${TRUSTED_SUBNET}"
+

@@ -48,3 +48,4 @@ http:
         # Keycloak isteği kendi (harici) host adıyla görmeli; aksi halde
         # üretilen URL'ler ve yönlendirmeler yanlış host'a işaret eder.
         passHostHeader: true
+
