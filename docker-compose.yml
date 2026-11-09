@@ -368,6 +368,9 @@ services:
       OAUTH2_PROXY_PASS_ACCESS_TOKEN: ${OAUTH2_PROXY_PASS_ACCESS_TOKEN}
       OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: ${OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER}
 
+      # Tum eposta uzantılarına izin ver
+      OAUTH2_PROXY_INSECURE_OIDC_ALLOW_UNVERIFIED_EMAIL: "true"
+
 # ==========================================
 # AĞ VE KALICI HACİM TANIMLARI
 # ==========================================
