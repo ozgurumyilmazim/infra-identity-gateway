@@ -155,6 +155,7 @@ services:
       # Router 1: Dahili (.intra -> 443)
       - "traefik.http.routers.portainer-int.rule=Host(`${PORTAINER_INT_FQDN}`)"
       - "traefik.http.routers.portainer-int.entrypoints=websecure"
+      - "traefik.http.routers.portainer-int.middlewares=keycloak-auth@file"
       - "traefik.http.routers.portainer-int.tls=true"
       - "traefik.http.routers.portainer-int.service=portainer-svc"
       # Router 2: Harici (.com.tr -> 444 + CrowdSec Koruması)
