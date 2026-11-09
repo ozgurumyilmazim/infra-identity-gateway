@@ -86,7 +86,6 @@ expand_fqdn() {
     printf '%s' "$val"
 }
 
-printf "%-25s : %s | %s\n" "ZITADEL FQDN" "$(expand_fqdn "$(get_env_val "ZITADEL_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "ZITADEL_EXT_FQDN")")"
 printf "%-25s : %s | %s\n" "PORTAINER FQDN" "$(expand_fqdn "$(get_env_val "PORTAINER_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "PORTAINER_EXT_FQDN")")"
 printf "%-25s : %s | %s\n" "GUACAMOLE FQDN" "$(expand_fqdn "$(get_env_val "GUACAMOLE_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "GUACAMOLE_EXT_FQDN")")"
 printf "%-25s : %s | %s\n" "VAULTWARDEN FQDN" "$(expand_fqdn "$(get_env_val "VAULTWARDEN_INT_FQDN")")" "$(expand_fqdn "$(get_env_val "VAULTWARDEN_EXT_FQDN")")"
@@ -174,23 +173,11 @@ fi
 # (traefik/templates/crowdsec.yml.tmpl -> run.sh tarafından üretilir)
 # -------------------------------------------------------------
 
-manage_secret "POSTGRES_PASSWORD" "PostgreSQL (Zitadel DB) Şifresi" 24 \
-    "Mevcut veritabanı volume'ü varsa PostgreSQL konteyneri şifre uyuşmazlığı nedeniyle başlatılamaz!"
-
 manage_secret "GUACAMOLE_DB_PASSWORD" "Guacamole PostgreSQL Şifresi" 24 \
     "Guacamole veritabanı şifresi değişirse Guacamole servisi oturum açamaz!"
 
 manage_secret "VAULTWARDEN_DB_PASSWORD" "Vaultwarden PostgreSQL Şifresi" 24 \
     "Vaultwarden DB parolası değişirse parola kasası veritabanına bağlanamaz!"
-
-manage_secret "ZITADEL_MASTERKEY" "Zitadel Master Key (32 Karakter)" 32 \
-    "KRİTİK: Masterkey değiştiğinde Zitadel veritabanındaki şifreli kayıtları ÇÖZEMEZ. KALICI VERİ KAYBI OLUŞUR!"
-
-manage_secret "ZITADEL_ADMIN_PASSWORD" "Zitadel İlk Kurulum Admin Şifresi" 24 \
-    "Yalnızca ilk kurulumda kullanılır; mevcut veritabanını etkilemez."
-
-manage_secret "ZITADEL_SESSION_COOKIE_SECRET" "Zitadel Login UI Cookie Secret (32 Karakter)" 32 \
-    "Zitadel Login oturum çerezlerini imzalamak için kullanılır."
 
 manage_secret "VAULTWARDEN_ADMIN_TOKEN" "Vaultwarden /admin Giriş Tokenı" 32 \
     "Vaultwarden yönetim paneli erişim anahtarı yenilenir."
@@ -375,18 +362,6 @@ if [ -n "$DASH_PASS" ]; then
     echo "${DASH_USER}:${HASH}" > "$USERS_FILE"
     chmod 600 "$USERS_FILE"
     echo -e "${GREEN}[✓] Traefik dashboard kimlik dosyası güncellendi (${USERS_FILE})${NC}"
-fi
-
-
-FINAL_MASTERKEY=$(get_env_val "ZITADEL_MASTERKEY")
-if [ -n "$FINAL_MASTERKEY" ] && [ "${#FINAL_MASTERKEY}" -ne 32 ]; then
-    echo -e "\n${RED}[!] DİKKAT: ZITADEL_MASTERKEY tam 32 karakter olmalıdır! (Şu an: ${#FINAL_MASTERKEY})${NC}"
-    read -r -p "32 karakterlik yeni anahtar atansın mı? (evet/HAYIR): " mk_confirm
-    if [ "$mk_confirm" = "evet" ]; then
-        CORRECTED_KEY=$(gen_random_secret 32)
-        set_env_val "ZITADEL_MASTERKEY" "$CORRECTED_KEY"
-        echo -e "${GREEN}[✓] 32 karakterlik yeni ZITADEL_MASTERKEY atandı.${NC}"
-    fi
 fi
 
 # ACME ve Dizin İzinleri

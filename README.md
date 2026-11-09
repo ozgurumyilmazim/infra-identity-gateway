@@ -1,6 +1,6 @@
 # Infrastructure Identity & Secure Edge Gateway
 
-Merkezi kimlik yönetimi (Univention Corporate Server Samba 4 Active Directory & Zitadel OIDC/SAML), ters vekil (Traefik v3), uzak masaüstü ağ geçidi (Apache Guacamole), parola kasası (Vaultwarden) ve çok katmanlı tünel güvenliğini (Tailscale, Cloudflare, CrowdSec) bir araya getiren kurumsal Docker Compose mimarisi.
+Merkezi kimlik yönetimi (Univention Corporate Server Samba 4 Active Directory & KeyCloak), ters vekil (Traefik v3), uzak masaüstü ağ geçidi (Apache Guacamole), parola kasası (Vaultwarden) ve çok katmanlı tünel güvenliğini (Tailscale, Cloudflare, CrowdSec) bir araya getiren kurumsal Docker Compose mimarisi.
 
 ## Ağ ve Port Ayrımı
 
@@ -11,9 +11,8 @@ Merkezi kimlik yönetimi (Univention Corporate Server Samba 4 Active Directory &
 ## Mimarideki Modüller
 
 * **Traefik v3:** Tüm HTTP/HTTPS ve gRPC (h2c) trafiğini yöneten ters vekil.
-* **Zitadel:** OpenID Connect ve SAML 2.0 sağlayıcısı (UCS Samba 4 ile federated çalışacak şekilde yapılandırılabilir).
 * **Keycloak:** OpenID Connect ve SAML 2.0 sağlayıcısı, UCS LDAP ve diğer uygulamalarla entegrasyon için alternatif IdP.
-* **PostgreSQL 16:** Zitadel, Guacamole, Vaultwarden ve CrowdSec için merkezi veritabanı.
+* **PostgreSQL 16:** Guacamole, Vaultwarden ve CrowdSec için merkezi veritabanı.
 * **Portainer CE:** Konteyner yönetim arayüzü.
 * **CrowdSec:** Traefik erişim loglarını izleyen saldırı tespit ve engelleme sistemi.
 * **Apache Guacamole & Guacd:** Web tabanlı RDP/VNC/SSH istemcisi.
@@ -21,8 +20,7 @@ Merkezi kimlik yönetimi (Univention Corporate Server Samba 4 Active Directory &
 * **Tailscale & Cloudflare Tunnel:** Güvenli uzaktan erişim ve sıfır-port dış tünelleme.
 * **OPNsense:** Harici firewall WebGUI yönlendirmesi.
 * **pgAdmin 4:** Merkezi veritabanı yönetim arayüzü.
-* **oauth2-proxy:** Traefik ForwardAuth ile Zitadel üzerinden SSO entegrasyonu.
-
+* 
 ## Kurulum ve Dağıtım
 
 ### 1. Depoyu Klonlayın
@@ -43,12 +41,11 @@ cp env.ornek .env
 - `DOMAIN_INT`, `DOMAIN_EXT`
 - `TRUSTED_SUBNET`
 - `UCS_*`, `ACME_EMAIL`, `CF_DNS_API_TOKEN`, `TAILSCALE_AUTH_KEY`, `CLOUDFLARE_TUNNEL_TOKEN`
-- `OAUTH2_PROXY_CLIENT_ID`, `OAUTH2_PROXY_CLIENT_SECRET`, `OAUTH2_PROXY_COOKIE_SECRET` (Zitadel uygulama kaydı sonrası doldurulabilir)
 
 ### 3. Otomatik Yapılandırma ve Başlatma
 Tüm yapılandırma dosyaları, şifreler, sertifikalar ve bağımlılıklar `run.sh` ile hazırlanıp başlatılır.
 ```bash
-chmod +x run.sh setup-env.sh setup-db.sh setup-zitadel.sh
+chmod +x run.sh setup-env.sh setup-db.sh 
 ./run.sh
 ```
 
@@ -56,8 +53,7 @@ chmod +x run.sh setup-env.sh setup-db.sh setup-zitadel.sh
 1. `setup-env.sh` - `.env` kontrolü/üretimi, gizli anahtarlar, CrowdSec plugin, Traefik dinamik dosyaları, pgAdmin yapılandırması, htpasswd
 2. `setup-db.sh` - PostgreSQL başlatma, kullanıcı/DB oluşturma, Guacamole şeması yükleme
 3. `docker compose up -d` - Tüm servisleri ayağa kaldırma
-4. `setup-zitadel.sh` - Çift FQDN kullanımı için Zitadel instance domain eşleştirmesi
-5. `traefik/templates/*.yml.tmpl` -> `traefik/dynamic/*.yml` üretimi
+4. `traefik/templates/*.yml.tmpl` -> `traefik/dynamic/*.yml` üretimi
 
 ### 4. Durdurma / Temizlik
 ```bash
@@ -69,7 +65,7 @@ chmod +x run.sh setup-env.sh setup-db.sh setup-zitadel.sh
 ## Önemli Dosya Yapısı
 
 - `docker-compose.yml` - Tüm servis tanımları, ağlar ve hacimler
-- `run.sh`, `setup-env.sh`, `setup-db.sh`, `setup-zitadel.sh` - Otomatik kurulum betikleri
+- `run.sh`, `setup-env.sh`, `setup-db.sh`  - Otomatik kurulum betikleri
 - `traefik/templates/` - Traefik dinamik yapılandırma şablonları (`*.yml.tmpl`)
 - `traefik/dynamic/` - `run.sh` tarafından şablonlardan üretilen dinamik yapılandırmalar
 - `traefik/` - Traefik sertifikaları ve yerel eklentiler
@@ -97,8 +93,6 @@ Upstream Vaultwarden doğrudan LDAP ile oturum açmayı desteklemez. LDAP yalnı
 kullanıcı davet/senkronu için kullanılabilir. UCS hesaplarıyla merkezi giriş
 gerekiyorsa iki yol vardır:
 
-- **Zitadel OIDC SSO:** Zitadel, UCS Samba 4 AD'ye federasyon ile bağlanır ve
-  Vaultwarden `SSO_ENABLED=true` ile Zitadel'e yönlendirilir.
 - **vaultwarden_ldap:** Kullanıcılar LDAP'ten otomatik davet edilir; Vaultwarden
   ana parolası ayrı kalır.
 
