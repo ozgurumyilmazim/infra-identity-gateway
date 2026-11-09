@@ -116,107 +116,107 @@ services:
   # ==========================================
   # 3. IAM & SSO: ZITADEL (LOGIN V1 / YERLEŞİK UI)
   # ==========================================
-  zitadel:
-    image: ghcr.io/zitadel/zitadel:latest
-    container_name: zitadel
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    command: 'start-from-init --masterkey "${ZITADEL_MASTERKEY}" --tlsMode external'
-    environment:
-      ZITADEL_DATABASE_POSTGRES_HOST: db
-      ZITADEL_DATABASE_POSTGRES_PORT: 5432
-      ZITADEL_DATABASE_POSTGRES_DATABASE: ${POSTGRES_DB}
-      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: ${POSTGRES_USER}
-      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${POSTGRES_PASSWORD}
-      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
-      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: ${POSTGRES_USER}
-      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${POSTGRES_PASSWORD}
-      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
-      ZITADEL_EXTERNALDOMAIN: ${ZITADEL_EXT_FQDN}
-      ZITADEL_EXTERNALPORT: 443
-      ZITADEL_EXTERNALSECURE: "true"
-      # Login V2'yi kapatıp dahili Login V1 arayüzünü etkinleştirir:
-      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_REQUIRED: "false"
-      ZITADEL_FIRSTINSTANCE_ORG_NAME: ${ZITADEL_ORG_NAME}
-      # ZITADEL_FIRSTINSTANCE_USER_USERNAME: ${ZITADEL_ADMIN_USER}
-      # ZITADEL_FIRSTINSTANCE_USER_PASSWORD: ${ZITADEL_ADMIN_PASSWORD}
-      # YENİ (Zitadel v4 Standartı):
-      # Kullanıcı adı e-posta olarak verilirse login adı birebir bu e-posta olur;
-      # aksi halde Zitadel <kullanıcı>@<org>.<domain> şeklinde uzatır.
-      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: ${ZITADEL_ADMIN_USER}
-      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: ${ZITADEL_ADMIN_PASSWORD}
-      # İlk girişte zorunlu şifre değişimini atlamak isterseniz (isteğe bağlı):
-      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: "false"
-      ZITADEL_DEFAULTINSTANCE_PASSWORDCOMPLEXITYPOLICY_HASSYMBOL: "false"
-      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_EMAILVERIFIED: "true"
-    volumes:
-      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
-    labels:
-      - "traefik.enable=true"
-      # Router 1: Dahili (.intra -> 443)
-      - "traefik.http.routers.zitadel-int.rule=Host(`${ZITADEL_INT_FQDN}`)"
-      - "traefik.http.routers.zitadel-int.entrypoints=websecure"
-      - "traefik.http.routers.zitadel-int.tls=true"
-      - "traefik.http.routers.zitadel-int.service=zitadel-svc"
-      # Router 2: Harici (.com.tr -> 444 + CrowdSec)
-      - "traefik.http.routers.zitadel-ext.rule=Host(`${ZITADEL_EXT_FQDN}`)"
-      - "traefik.http.routers.zitadel-ext.entrypoints=webexternalunsecure"
-      - "traefik.http.routers.zitadel-ext.tls=false"
-      - "traefik.http.routers.zitadel-ext.middlewares=crowdsec@file"
-      - "traefik.http.routers.zitadel-ext.service=zitadel-svc"
-      # Router 3: Split-DNS (ic agdan .com.tr -> 443, CrowdSec yok)
-      - "traefik.http.routers.zitadel-ext-split.rule=Host(`${ZITADEL_EXT_FQDN}`)"
-      - "traefik.http.routers.zitadel-ext-split.entrypoints=websecure"
-      - "traefik.http.routers.zitadel-ext-split.tls=true"
-      - "traefik.http.routers.zitadel-ext-split.service=zitadel-svc"
-      # Ortak gRPC / h2c Port
-      - "traefik.http.services.zitadel-svc.loadbalancer.server.port=8080"
-      - "traefik.http.services.zitadel-svc.loadbalancer.server.scheme=h2c"
-    networks:
-      - edge_network
-      - internal_network
+  ##  zitadel:
+  ##    image: ghcr.io/zitadel/zitadel:latest
+  ##    container_name: zitadel
+  ##    restart: unless-stopped
+  ##    depends_on:
+  ##      db:
+  ##        condition: service_healthy
+  ##    command: 'start-from-init --masterkey "${ZITADEL_MASTERKEY}" --tlsMode external'
+  ##    environment:
+  ##      ZITADEL_DATABASE_POSTGRES_HOST: db
+  ##      ZITADEL_DATABASE_POSTGRES_PORT: 5432
+  ##      ZITADEL_DATABASE_POSTGRES_DATABASE: ${POSTGRES_DB}
+  ##      ZITADEL_DATABASE_POSTGRES_USER_USERNAME: ${POSTGRES_USER}
+  ##      ZITADEL_DATABASE_POSTGRES_USER_PASSWORD: ${POSTGRES_PASSWORD}
+  ##      ZITADEL_DATABASE_POSTGRES_USER_SSL_MODE: disable
+  ##      ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME: ${POSTGRES_USER}
+  ##      ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD: ${POSTGRES_PASSWORD}
+  ##      ZITADEL_DATABASE_POSTGRES_ADMIN_SSL_MODE: disable
+  ##      ZITADEL_EXTERNALDOMAIN: ${ZITADEL_EXT_FQDN}
+  ##      ZITADEL_EXTERNALPORT: 443
+  ##      ZITADEL_EXTERNALSECURE: "true"
+  ##      # Login V2'yi kapatıp dahili Login V1 arayüzünü etkinleştirir:
+  ##      ZITADEL_DEFAULTINSTANCE_FEATURES_LOGINV2_REQUIRED: "false"
+  ##      ZITADEL_FIRSTINSTANCE_ORG_NAME: ${ZITADEL_ORG_NAME}
+  ##      # ZITADEL_FIRSTINSTANCE_USER_USERNAME: ${ZITADEL_ADMIN_USER}
+  ##      # ZITADEL_FIRSTINSTANCE_USER_PASSWORD: ${ZITADEL_ADMIN_PASSWORD}
+  ##      # YENİ (Zitadel v4 Standartı):
+  ##      # Kullanıcı adı e-posta olarak verilirse login adı birebir bu e-posta olur;
+  ##      # aksi halde Zitadel <kullanıcı>@<org>.<domain> şeklinde uzatır.
+  ##      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_USERNAME: ${ZITADEL_ADMIN_USER}
+  ##      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD: ${ZITADEL_ADMIN_PASSWORD}
+  ##      # İlk girişte zorunlu şifre değişimini atlamak isterseniz (isteğe bağlı):
+  ##      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORDCHANGEREQUIRED: "false"
+  ##      ZITADEL_DEFAULTINSTANCE_PASSWORDCOMPLEXITYPOLICY_HASSYMBOL: "false"
+  ##      ZITADEL_FIRSTINSTANCE_ORG_HUMAN_EMAILVERIFIED: "true"
+  ##    volumes:
+  ##      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
+  ##    labels:
+  ##      - "traefik.enable=true"
+  ##      # Router 1: Dahili (.intra -> 443)
+  ##      - "traefik.http.routers.zitadel-int.rule=Host(`${ZITADEL_INT_FQDN}`)"
+  ##      - "traefik.http.routers.zitadel-int.entrypoints=websecure"
+  ##      - "traefik.http.routers.zitadel-int.tls=true"
+  ##      - "traefik.http.routers.zitadel-int.service=zitadel-svc"
+  ##      # Router 2: Harici (.com.tr -> 444 + CrowdSec)
+  ##      - "traefik.http.routers.zitadel-ext.rule=Host(`${ZITADEL_EXT_FQDN}`)"
+  ##      - "traefik.http.routers.zitadel-ext.entrypoints=webexternalunsecure"
+  ##      - "traefik.http.routers.zitadel-ext.tls=false"
+  ##      - "traefik.http.routers.zitadel-ext.middlewares=crowdsec@file"
+  ##      - "traefik.http.routers.zitadel-ext.service=zitadel-svc"
+  ##      # Router 3: Split-DNS (ic agdan .com.tr -> 443, CrowdSec yok)
+  ##      - "traefik.http.routers.zitadel-ext-split.rule=Host(`${ZITADEL_EXT_FQDN}`)"
+  ##      - "traefik.http.routers.zitadel-ext-split.entrypoints=websecure"
+  ##      - "traefik.http.routers.zitadel-ext-split.tls=true"
+  ##      - "traefik.http.routers.zitadel-ext-split.service=zitadel-svc"
+  ##      # Ortak gRPC / h2c Port
+  ##      - "traefik.http.services.zitadel-svc.loadbalancer.server.port=8080"
+  ##      - "traefik.http.services.zitadel-svc.loadbalancer.server.scheme=h2c"
+  ##    networks:
+  ##      - edge_network
+  ##      - internal_network
 
-  oauth2-proxy:
-    image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
-    container_name: oauth2-proxy
-    restart: unless-stopped
-    environment:
-      OAUTH2_PROXY_PROVIDER: "oidc"
-      OAUTH2_PROXY_OIDC_ISSUER_URL: "https://${ZITADEL_EXT_FQDN}"
-      OAUTH2_PROXY_CLIENT_ID: "${OAUTH2_PROXY_CLIENT_ID}"
-      OAUTH2_PROXY_CLIENT_SECRET: "${OAUTH2_PROXY_CLIENT_SECRET}"
-      OAUTH2_PROXY_COOKIE_SECRET: "${OAUTH2_PROXY_COOKIE_SECRET}"
-      OAUTH2_PROXY_COOKIE_DOMAINS: ".${DOMAIN_EXT}"
-      OAUTH2_PROXY_WHITELIST_DOMAINS: ".${DOMAIN_EXT}"
-      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
-      OAUTH2_PROXY_SCOPE: "openid email profile"
-      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
-      OAUTH2_PROXY_REVERSE_PROXY: "true"
-      OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
-      OAUTH2_PROXY_PASS_ACCESS_TOKEN: "true"
-      OAUTH2_PROXY_COOKIE_SECURE: "true"
-      # --- EKLENEN KRİTİK AYARLAR ---
-      # 1. Oturum açıldığında Traefik'e 202 kabul yanıtı ver:
-      OAUTH2_PROXY_UPSTREAMS: "static://202"
-      # 2. Ara onay butonunu atlayıp doğrudan Zitadel girişine yönlendir:
-      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
-      # 3. İsteğin hangi alt alandan (portainer vb.) geldiğine bakılmaksızın callback'i sabit tut:
-      OAUTH2_PROXY_REDIRECT_URL: "https://auth-proxy.${DOMAIN_EXT}/oauth2/callback"
-    networks:
-      - edge_network
-    labels:
-      - "traefik.enable=true"
-      # ForwardAuth Middleware Tanımı (Tüm servislerin kullanabilmesi için)
-      - "traefik.http.middlewares.zitadel-auth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
-      - "traefik.http.middlewares.zitadel-auth.forwardauth.trustForwardHeader=true"
-      - "traefik.http.middlewares.zitadel-auth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Preferred-Username"
-      # Proxy Callback Yönlendirmesi
-      - "traefik.http.routers.oauth2-proxy.rule=Host(`auth-proxy.${DOMAIN_EXT}`)"
-      - "traefik.http.routers.oauth2-proxy.entrypoints=websecure,webexternalunsecure"
-      - "traefik.http.routers.oauth2-proxy.tls=true"
-      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
+  ##  oauth2-proxy:
+  ##    image: quay.io/oauth2-proxy/oauth2-proxy:v7.6.0
+  ##    container_name: oauth2-proxy
+  ##    restart: unless-stopped
+  ##    environment:
+  ##      OAUTH2_PROXY_PROVIDER: "oidc"
+  ##      OAUTH2_PROXY_OIDC_ISSUER_URL: "https://${ZITADEL_EXT_FQDN}"
+  ##      OAUTH2_PROXY_CLIENT_ID: "${OAUTH2_PROXY_CLIENT_ID}"
+  ##      OAUTH2_PROXY_CLIENT_SECRET: "${OAUTH2_PROXY_CLIENT_SECRET}"
+  ##      OAUTH2_PROXY_COOKIE_SECRET: "${OAUTH2_PROXY_COOKIE_SECRET}"
+  ##      OAUTH2_PROXY_COOKIE_DOMAINS: ".${DOMAIN_EXT}"
+  ##      OAUTH2_PROXY_WHITELIST_DOMAINS: ".${DOMAIN_EXT}"
+  ##      OAUTH2_PROXY_EMAIL_DOMAINS: "*"
+  ##      OAUTH2_PROXY_SCOPE: "openid email profile"
+  ##      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
+  ##      OAUTH2_PROXY_REVERSE_PROXY: "true"
+  ##      OAUTH2_PROXY_SET_XAUTHREQUEST: "true"
+  ##      OAUTH2_PROXY_PASS_ACCESS_TOKEN: "true"
+  ##      OAUTH2_PROXY_COOKIE_SECURE: "true"
+  ##      # --- EKLENEN KRİTİK AYARLAR ---
+  ##      # 1. Oturum açıldığında Traefik'e 202 kabul yanıtı ver:
+  ##      OAUTH2_PROXY_UPSTREAMS: "static://202"
+  ##      # 2. Ara onay butonunu atlayıp doğrudan Zitadel girişine yönlendir:
+  ##      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
+  ##      # 3. İsteğin hangi alt alandan (portainer vb.) geldiğine bakılmaksızın callback'i sabit tut:
+  ##      OAUTH2_PROXY_REDIRECT_URL: "https://auth-proxy.${DOMAIN_EXT}/oauth2/callback"
+  ##    networks:
+  ##      - edge_network
+  ##    labels:
+  ##      - "traefik.enable=true"
+  ##      # ForwardAuth Middleware Tanımı (Tüm servislerin kullanabilmesi için)
+  ##      - "traefik.http.middlewares.zitadel-auth.forwardauth.address=http://oauth2-proxy:4180/oauth2/auth"
+  ##      - "traefik.http.middlewares.zitadel-auth.forwardauth.trustForwardHeader=true"
+  ##      - "traefik.http.middlewares.zitadel-auth.forwardauth.authResponseHeaders=X-Auth-Request-User,X-Auth-Request-Email,X-Auth-Request-Preferred-Username"
+  ##      # Proxy Callback Yönlendirmesi
+  ##      - "traefik.http.routers.oauth2-proxy.rule=Host(`auth-proxy.${DOMAIN_EXT}`)"
+  ##      - "traefik.http.routers.oauth2-proxy.entrypoints=websecure,webexternalunsecure"
+  ##      - "traefik.http.routers.oauth2-proxy.tls=true"
+  ##      - "traefik.http.services.oauth2-proxy.loadbalancer.server.port=4180"
 
   # ==========================================
   # 4. KONTEYNER YÖNETİMİ: PORTAINER CE
@@ -307,27 +307,27 @@ services:
   # ==========================================
   # 7. MESH VPN: TAILSCALE
   # ==========================================
-  tailscale:
-    image: tailscale/tailscale:latest
-    container_name: tailscale
-    restart: unless-stopped
-    hostname: identity-gateway
-    environment:
-      - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}
-      - TS_STATE_DIR=/var/lib/tailscale
-      - TS_USERSPACE=false
-      - TS_ROUTES=${TAILSCALE_ADVERTISED_ROUTES}
-    volumes:
-      - tailscale_data:/var/lib/tailscale
-      - /dev/net/tun:/dev/net/tun
-      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    cap_add:
-      - NET_ADMIN
-      - NET_RAW
-    networks:
-      - edge_network
+  ##  tailscale:
+  ##    image: tailscale/tailscale:latest
+  ##    container_name: tailscale
+  ##    restart: unless-stopped
+  ##    hostname: identity-gateway
+  ##    environment:
+  ##      - TS_AUTHKEY=${TAILSCALE_AUTH_KEY}
+  ##      - TS_STATE_DIR=/var/lib/tailscale
+  ##      - TS_USERSPACE=false
+  ##      - TS_ROUTES=${TAILSCALE_ADVERTISED_ROUTES}
+  ##    volumes:
+  ##      - tailscale_data:/var/lib/tailscale
+  ##      - /dev/net/tun:/dev/net/tun
+  ##      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
+  ##    devices:
+  ##      - /dev/net/tun:/dev/net/tun
+  ##    cap_add:
+  ##      - NET_ADMIN
+  ##      - NET_RAW
+  ##    networks:
+  ##      - edge_network
 
   # ==========================================
   # 8. SIFIR-PORT DIŞ TÜNEL: CLOUDFLARE
