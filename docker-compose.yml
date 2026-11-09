@@ -161,7 +161,7 @@ services:
       - "traefik.http.routers.portainer-ext.rule=Host(`${PORTAINER_EXT_FQDN}`)"
       - "traefik.http.routers.portainer-ext.entrypoints=webexternalunsecure"
       - "traefik.http.routers.portainer-ext.tls=false"
-      - "traefik.http.routers.portainer-ext.middlewares=crowdsec@file"
+      - "traefik.http.routers.portainer-ext.middlewares=crowdsec@file, keycloak-auth@file"
       - "traefik.http.routers.portainer-ext.service=portainer-svc"
       # Ortak WebGUI Servisi
       - "traefik.http.services.portainer-svc.loadbalancer.server.port=9000"
@@ -416,7 +416,6 @@ services:
       OAUTH2_PROXY_SET_XAUTHREQUEST: ${OAUTH2_PROXY_SET_XAUTHREQUEST}
       OAUTH2_PROXY_PASS_ACCESS_TOKEN: ${OAUTH2_PROXY_PASS_ACCESS_TOKEN}
       OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER: ${OAUTH2_PROXY_PASS_AUTHORIZATION_HEADER}
-
 
 # ==========================================
 # AĞ VE KALICI HACİM TANIMLARI
