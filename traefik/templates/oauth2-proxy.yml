@@ -4,6 +4,8 @@ http:
       rule: "Host(`auth.icat.com.tr`)"
       entryPoints:
         - websecure
+        - webexternalunsecure
+        - webexternalsecure
       tls: {}
       service: oauth2-proxy
   services:
