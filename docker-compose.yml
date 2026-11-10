@@ -260,6 +260,7 @@ services:
     volumes:
       - guacamole_home:/home/guacamole/.guacamole
       - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
+      - ${CA_CERT_DIR}:/cacerts/:ro
     labels:
       - "traefik.enable=true"
       # Router 1: Dahili (.intra -> 443)
