@@ -1,5 +1,5 @@
 http:
-    routers:
+  routers:
     # İç ağ erişimi (intra) – TLS zorunlu
     nextcloud-int:
       rule: "Host(`${NEXTCLOUD_DOMAIN_INT}` )"
