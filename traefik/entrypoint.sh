@@ -34,7 +34,7 @@ exec traefik \
   --providers.docker=true \
   --providers.docker.exposedbydefault=false \
   --providers.file.directory=/etc/traefik/dynamic \
-  --providers.file.watch=true \
+  --providers.file.watch=false \
   --entrypoints.web.address=:80 \
   --entrypoints.web.http.redirections.entrypoint.to=websecure \
   --entrypoints.web.http.redirections.entrypoint.scheme=https \
