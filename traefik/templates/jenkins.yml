@@ -13,18 +13,15 @@ http:
         - "websecure"
       tls: {}
       service: jenkins
-
     # Dış ağ erişimi (public) – TLS opsiyonel, CrowdSec koruması
     jenkins-ext:
       rule: "Host(`${JENKINS_EXT_FQDN}`)"
       entryPoints:
         - "webexternalunsecure"
-      tls: {}
       middlewares:
         - "jenkins-forwarded@file"
         - "crowdsec@file"
       service: jenkins
-
   services:
     jenkins:
       loadBalancer:
