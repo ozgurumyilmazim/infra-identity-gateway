@@ -1,0 +1,40 @@
+http:
+  # ==========================================
+  # 1. MIDDLEWARE TANIMLARI (Gerekirse ekle)
+  # ==========================================
+  middlewares:
+    # (Opsiyonel) IP izin listesi sadece dahili ağdan erişim
+    internal-only-ip:
+      ipAllowList:
+        sourceRange:
+          - "127.0.0.1/32"
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+          - "192.168.0.0/16"
+
+  # ==========================================
+  # 2. ROUTER VE SERVİS TANIMLARI
+  # ==========================================
+  routers:
+    # İç ağ erişimi (intra) – TLS zorunlu
+    nextcloud-int:
+      rule: "Host(`${NEXTCLOUD_DOMAIN_INT}` )"
+      entryPoints:
+        - "websecure"
+      tls: {}
+      service: nextcloud
+
+    # Dış ağ erişimi (public) – TLS opsiyonel, CrowdSec koruması
+    nextcloud-ext:
+      rule: "Host(`${NEXTCLOUD_DOMAIN_EXT}` )"
+      entryPoints:
+        - "webexternalunsecure"
+      middlewares:
+        - "crowdsec@file"
+      service: nextcloud
+
+  services:
+    nextcloud:
+      loadBalancer:
+        servers:
+          - url: "${NEXTCLOUD_SCHEME}://${NEXTCLOUD_HOST}:${NEXTCLOUD_PORT}"
