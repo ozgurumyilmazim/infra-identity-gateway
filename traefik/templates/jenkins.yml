@@ -1,27 +1,39 @@
 http:
+  # forwardHeaders middleware’i artık burada yok
   middlewares:
+    # X‑Forwarded‑* başlıklarını tamamen temizlemek isterseniz:
+    jenkins-strip-forwarded:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-For: ""
+          X-Forwarded-Host: ""
+          X-Forwarded-Proto: ""
+          X-Real-Ip: ""
     jenkins-forwarded:
       forwardedHeaders:
         trustedIPs:
           - "127.0.0.1/32"
           - "${TRUSTED_SUBNET}"
+
   routers:
-    # İç ağ erişimi (intra) – TLS zorunlu
+    # İç ağ (intra) – TLS zorunlu
     jenkins-int:
       rule: "Host(`${JENKINS_INT_FQDN}`)"
       entryPoints:
         - "websecure"
       tls: {}
       service: jenkins
-    # Dış ağ erişimi (public) – TLS opsiyonel, CrowdSec koruması
+
+    # Dış ağ (public) – TLS opsiyonel, CrowdSec koruması
     jenkins-ext:
       rule: "Host(`${JENKINS_EXT_FQDN}`)"
       entryPoints:
         - "webexternalunsecure"
       middlewares:
-        - "jenkins-forwarded@file"
+        - "jenkins-strip-forwarded@file"   # ← burada yeni middleware
         - "crowdsec@file"
       service: jenkins
+
   services:
     jenkins:
       loadBalancer:
