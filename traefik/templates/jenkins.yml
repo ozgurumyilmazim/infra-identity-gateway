@@ -1,19 +1,19 @@
 http:
   # forwardHeaders middleware’i artık burada yok
-  middlewares:
+  #middlewares:
     # X‑Forwarded‑* başlıklarını tamamen temizlemek isterseniz:
-    jenkins-strip-forwarded:
-      headers:
-        customRequestHeaders:
-          X-Forwarded-For: ""
-          X-Forwarded-Host: ""
-          X-Forwarded-Proto: ""
-          X-Real-Ip: ""
-    jenkins-forwarded:
-      forwardedHeaders:
-        trustedIPs:
-          - "127.0.0.1/32"
-          - "${TRUSTED_SUBNET}"
+  #  jenkins-strip-forwarded:
+  #    headers:
+  #      customRequestHeaders:
+  #        X-Forwarded-For: ""
+  #        X-Forwarded-Host: ""
+  #        X-Forwarded-Proto: ""
+  #        X-Real-Ip: ""
+  #  jenkins-forwarded:
+  #    forwardedHeaders:
+  #      trustedIPs:
+  #        - "127.0.0.1/32"
+  #        - "${TRUSTED_SUBNET}"
 
   routers:
     # İç ağ (intra) – TLS zorunlu
