@@ -21,6 +21,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/entrypoint.sh:/entrypoint.sh:ro
       - ./traefik/dynamic:/etc/traefik/dynamic:ro
+      - ./traefik/users:/etc/traefik/users:ro
       - ./traefik/certs:/certs:rw
       - ./traefik/plugins-local:/plugins-local:ro
       - traefik_logs:/var/log/traefik

@@ -2,7 +2,7 @@ http:
   middlewares:
     dashboard-auth:
       basicAuth:
-        usersFile: "/etc/traefik/dynamic/usersfile"
+        usersFile: "/etc/traefik/users/file"
         removeHeader: true
         
         
