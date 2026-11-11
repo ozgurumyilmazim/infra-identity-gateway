@@ -30,7 +30,7 @@ http:
       entryPoints:
         - "webexternalunsecure"
       middlewares:
-        - "jenkins-strip-forwarded@file"   # ← burada yeni middleware
+        - "jenkins-strip-forwarded@file" 
         - "crowdsec@file"
       service: jenkins
 
