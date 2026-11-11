@@ -13,6 +13,7 @@ if [[ ! -d "$BASE_DIR" ]]; then
   exit 1
 fi
 
+# YAML dosyalarını bul
 mapfile -t yaml_files < <(find "$BASE_DIR" -type f \( -iname "*.yml" -o -iname "*.yaml" \))
 
 if (( ${#yaml_files[@]} == 0 )); then
@@ -23,7 +24,6 @@ fi
 has_error=0
 
 for file in "${yaml_files[@]}"; do
-  # Python ile dosyayı güvenli bir şekilde parse etmeye çalış
   if ! python3 - <<PYEOF
 import sys, yaml
 with open(r"$file", "r", encoding="utf-8") as f:
@@ -40,4 +40,3 @@ if (( has_error == 0 )); then
 fi
 
 exit $has_error
-
