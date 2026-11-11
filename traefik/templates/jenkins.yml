@@ -1,4 +1,10 @@
 http:
+  middlewares:
+    jenkins-forwarded:
+      forwardedHeaders:
+        trustedIPs:
+          - "127.0.0.1/32"
+          - "${TRUSTED_SUBNET}"
   routers:
     # İç ağ erişimi (intra) – TLS zorunlu
     jenkins-int:
@@ -13,7 +19,9 @@ http:
       rule: "Host(`${JENKINS_EXT_FQDN}`)"
       entryPoints:
         - "webexternalunsecure"
+      tls: {}
       middlewares:
+        - "jenkins-forwarded@file"
         - "crowdsec@file"
       service: jenkins
 
@@ -22,4 +30,3 @@ http:
       loadBalancer:
         servers:
           - url: "${JENKINS_SCHEME}://${JENKINS_HOST}:${JENKINS_PORT}"
-
