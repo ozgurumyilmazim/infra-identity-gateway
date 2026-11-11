@@ -19,7 +19,8 @@ shopt -u nullglob
 
 if (( ${#yaml_files[@]} == 0 )); then
   echo "[BİLGİ] Kontrol edilecek YAML dosyası bulunamadı."
-  echo "[BİLGİ] Baktığım dizin $BASE_DIR"
+  echo "[BİLGİ] Baktığım dizin: $BASE_DIR"
+  /bin/ls -la $BASE_DIR
   exit 0
 fi
 
