@@ -1,0 +1,25 @@
+http:
+  routers:
+    # İç ağ erişimi (intra) – TLS zorunlu
+    jenkins-int:
+      rule: "Host(`${JENKINS_INT_FQDN}`)"
+      entryPoints:
+        - "websecure"
+      tls: {}
+      service: jenkins
+
+    # Dış ağ erişimi (public) – TLS opsiyonel, CrowdSec koruması
+    jenkins-ext:
+      rule: "Host(`${JENKINS_EXT_FQDN}`)"
+      entryPoints:
+        - "webexternalunsecure"
+      middlewares:
+        - "crowdsec@file"
+      service: jenkins
+
+  services:
+    jenkins:
+      loadBalancer:
+        servers:
+          - url: "${JENKINS_SCHEME}://${JENKINS_HOST}:${JENKINS_PORT}"
+
