@@ -13,14 +13,10 @@ if [[ ! -d "$BASE_DIR" ]]; then
   exit 1
 fi
 
-shopt -s nullglob
-yaml_files=($BASE_DIR/**/*.yml $BASE_DIR/**/*.yaml)
-shopt -u nullglob
+mapfile -t yaml_files < <(find "$BASE_DIR" -type f \( -iname "*.yml" -o -iname "*.yaml" \))
 
 if (( ${#yaml_files[@]} == 0 )); then
   echo "[BİLGİ] Kontrol edilecek YAML dosyası bulunamadı."
-  echo "[BİLGİ] Baktığım dizin: $BASE_DIR"
-  /bin/ls -la $BASE_DIR
   exit 0
 fi
 
