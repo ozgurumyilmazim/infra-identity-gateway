@@ -354,7 +354,7 @@ manage_secret "TRAEFIK_DASHBOARD_PASSWORD" "Traefik Dashboard Admin Şifresi" 24
 DASH_USER=$(get_env_val "TRAEFIK_DASHBOARD_USER")
 DASH_USER=${DASH_USER:-admin}
 DASH_PASS=$(get_env_val "TRAEFIK_DASHBOARD_PASSWORD")
-USERS_FILE="traefik/dynamic/usersfile"
+USERS_FILE="traefik/users/file"
 
 if [ -n "$DASH_PASS" ]; then
     # OpenSSL ile MD5/Apache formatında parola hash üretimi (harici paket gerektirmez)

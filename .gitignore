@@ -34,5 +34,5 @@ crowdsec/*.yaml.local
 
 # Traefik
 traefik/plugins-local/
-traefik/dynamic/usersfile
+traefik/users/file
 traefik/dynamic/*.yml

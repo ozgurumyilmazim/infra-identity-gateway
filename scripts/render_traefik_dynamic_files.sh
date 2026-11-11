@@ -1,8 +1,23 @@
 #!/usr/bin/env bash
-# render_traefik_dynamic_files.sh
+
 # Şablonları .env değişkenleriyle doldurur → traefik/dynamic
 
-set -x  # Debug: komutları göster
+# Parse arguments
+VERBOSE=false
+while getopts "v" opt; do
+  case $opt in
+    v) VERBOSE=true ;;
+  esac
+done
+
+# Enable debug output only in verbose mode
+if $VERBOSE; then
+  set -x
+fi
+
+# Şablonları .env değişkenleriyle doldurur → traefik/dynamic
+
+
 
 
 # envsubst kurulu mu?
@@ -41,7 +56,9 @@ fi
 
 for tmpl_path in "${templates[@]}"; do
   tmpl_file="$(basename "$tmpl_path")"
-  printf "\n--- %s işleniyor ---\n" "$tmpl_file"
+  if $VERBOSE; then
+    printf "\n--- %s işleniyor ---\n" "$tmpl_file"
+  fi
 
   # kullanılan değişkenleri bul
   vars=$(grep -oE '\$\{?[A-Za-z_][A-Za-z0-9_]*\}?' "$tmpl_path" |
@@ -76,4 +93,8 @@ for tmpl_path in "${templates[@]}"; do
   fi
 done
 
-echo -e "\nTüm işlemler tamamlandı."
+if $VERBOSE; then
+  echo -e "\nTüm işlemler tamamlandı."
+else
+  echo "Dosyalar güncellendi."
+fi
